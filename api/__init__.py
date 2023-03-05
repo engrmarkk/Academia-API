@@ -19,10 +19,10 @@ def create_app(configure=config_object["appcon"]):
     jwt.init_app(app)
     api.init_app(app)
 
-    api.add_namespace(user_namespace, path="/user")
-    api.add_namespace(question_namespace)
-    api.add_namespace(option_namespace)
-    api.add_namespace(answer_namespace)
+    # api.add_namespace(user_namespace, path="/user")
+    # api.add_namespace(question_namespace)
+    # api.add_namespace(option_namespace)
+    # api.add_namespace(answer_namespace)
     # api.add_namespace(answer_namespace)
 
     @jwt.expired_token_loader
@@ -40,11 +40,10 @@ def create_app(configure=config_object["appcon"]):
         # This returns the database, Question, Options, and Answer models
         return {
                 "db": db,
-                "Question": Question,
-                "Options": Options,
-                "Answer": Answer,
-                "Users": Users,
-                "Is_answered": Is_answered
+                "Staff": Staff,
+                "Student": Student,
+                "Course": Course,
+                "CourseRegistered": CourseRegistered
                 }
 
     return app
