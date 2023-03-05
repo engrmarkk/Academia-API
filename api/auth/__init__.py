@@ -160,7 +160,7 @@ class UserLogin(MethodView):
     def post(self):
         # get the current user's token
         jti = get_jwt()["jti"]
-        # send the token to the BLOCKLIST set in the blocklist.py file
+        # send the token to the BLOCKLIST set in the blocklist/__init__.py file
         # this will revoke the token. A new access token will be created for you when you log in again
         BLOCKLIST.add(jti)
         # return this message for a successful logout
