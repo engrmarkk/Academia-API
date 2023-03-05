@@ -13,6 +13,8 @@ class plainStudentSchema(Schema):
     last_name = fields.Str(required=True)
     username = fields.Str(required=True)
     email = fields.Str(required=True)
+    grade = fields.Int(required=True)
+    gpa = fields.Float(required=True)
     password = fields.Str(required=True, load_only=True)
     registered_courses = fields.Nested(plainCourseRegisteredSchema(), many=True)
 
