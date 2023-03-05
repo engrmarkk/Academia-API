@@ -1,7 +1,7 @@
 from .extensions import db, migrate, jwt, app, api
 from .config import config_object
 from .models import Course, Staff, Student, CourseRegistered
-# from .auth import user_namespace
+from .auth import blb as UserBlueprint
 from .resources import *
 from flask import jsonify
 from http import HTTPStatus
@@ -20,7 +20,7 @@ def create_app(configure=config_object["appcon"]):
     api.init_app(app)
 
     # api.add_namespace(user_namespace, path="/user")
-    # api.add_namespace(question_namespace)
+    api.add_namespace(UserBlueprint)
     # api.add_namespace(option_namespace)
     # api.add_namespace(answer_namespace)
     # api.add_namespace(answer_namespace)
