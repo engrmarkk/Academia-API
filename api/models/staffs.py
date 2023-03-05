@@ -8,6 +8,7 @@ class Role(Enum):
 
 
 class Staff(db.Model):
+    __tablename__ = 'staffs'
     id = db.Column(db.Integer, primary_key=True)
     first_name = db.Column(db.String(80), nullable=False)
     last_name = db.Column(db.String(80), nullable=False)
@@ -16,6 +17,7 @@ class Staff(db.Model):
     role = db.Column(db.Enum(Role), nullable=False)
     is_admin = db.Column(db.Boolean, nullable=False, default=False)
     password = db.Column(db.String(80), nullable=False)
+    courses = db.relationship('Course', backref='tutor', lazy=True)
 
     def __repr__(self):
         return '<User %r>' % self.username
