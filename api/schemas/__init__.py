@@ -1,4 +1,10 @@
 from marshmallow import fields, Schema
+from enum import Enum
+
+
+class UserType(Enum):
+    STUDENT = "student"
+    STAFF = "staff"
 
 
 class plainCourseRegisteredSchema(Schema):
@@ -41,3 +47,10 @@ class plainStaffSchema(Schema):
     is_admin = fields.Bool(required=True)
     password = fields.Str(required=True, load_only=True)
     courses = fields.Nested(plainCourseSchema(), many=True)
+
+
+class plainUserLoginSchema(Schema):
+    username = fields.Str(required=True)
+    user_type = fields.Str(required=True)
+    password = fields.Str(required=True)
+    confirm_password = fields.Str(required=True)
