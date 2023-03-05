@@ -8,6 +8,8 @@ class Student(db.Model):
     last_name = db.Column(db.String(80), nullable=False)
     username = db.Column(db.String(80), unique=True, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
+    grade = db.Column(db.Integer, default=0, nullable=False)
+    gpa = db.Column(db.Integer, nullable=False, default=0)
     password = db.Column(db.String(80), nullable=False)
     registered_courses = db.relationship('CourseRegistered', cascade="all, delete", backref='student', lazy=True)
 

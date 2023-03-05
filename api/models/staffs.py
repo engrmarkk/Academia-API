@@ -17,7 +17,7 @@ class Staff(db.Model):
     role = db.Column(db.Enum(Role), nullable=False)
     is_admin = db.Column(db.Boolean, nullable=False, default=False)
     password = db.Column(db.String(80), nullable=False)
-    courses = db.relationship('Course', backref='tutor', lazy=True)
+    courses = db.relationship('Course', cascade="all, delete", backref='tutor', lazy=True)
 
     def __repr__(self):
         return '<User %r>' % self.username
