@@ -123,32 +123,40 @@ class UserLogin(MethodView):
 
             # if the username exist, verify if the password matches
             # if the password is valid, create an access token along with s refresh token
-            if staff and pbkdf2_sha256.verify(user_data["password"], staff.password):
-                access_token = create_access_token(fresh=True, identity=staff.id)
-                refresh_token = create_refresh_token(identity=staff.id)
-                # return the created tokens
-                return {"access_token": access_token, "refresh_token": refresh_token}
-            # if the username and the password are invalid, abort with a status code of 404
-            abort(
-                404,
-                message="staff not found , check if email /username or password is correct",
-            )
+            if staff:
+                if pbkdf2_sha256.verify(user_data["password"], staff.password):
+                    access_token = create_access_token(fresh=True, identity=staff.id)
+                    refresh_token = create_refresh_token(identity=staff.id)
+                    # return the created tokens
+                    return {"access_token": access_token, "refresh_token": refresh_token}
+                    # if the username and the password are invalid, abort with a status code of 404
+                else:
+                    abort(404, message="invalid password")
+            else:
+                abort(
+                    404,
+                    message="staff not found , check if username is correct",
+                )
         elif user_data["user_type"].lower() == "student":
             # query the database to check if the username exist
             student = Student.query.filter(Student.username == user_data["username"].lower()).first()
 
             # if the username exist, verify if the password matches
             # if the password is valid, create an access token along with s refresh token
-            if student and pbkdf2_sha256.verify(user_data["password"], student.password):
-                access_token = create_access_token(fresh=True, identity=student.id)
-                refresh_token = create_refresh_token(identity=student.id)
-                # return the created tokens
-                return {"access_token": access_token, "refresh_token": refresh_token}
-            # if the username and the password are invalid, abort with a status code of 404
-            abort(
-                404,
-                message="student not found , check if email /username or password is correct",
-            )
+            if student:
+                if pbkdf2_sha256.verify(user_data["password"], student.password):
+                    access_token = create_access_token(fresh=True, identity=student.id)
+                    refresh_token = create_refresh_token(identity=student.id)
+                    # return the created tokens
+                    return {"access_token": access_token, "refresh_token": refresh_token}
+                else:
+                    abort(404, message="Invalid password")
+            else:
+                # if the username and the password are invalid, abort with a status code of 404
+                abort(
+                    404,
+                    message="student not found , check if username is correct",
+                )
         else:
             abort(404, message="You have to be a student or staff to login")
 
