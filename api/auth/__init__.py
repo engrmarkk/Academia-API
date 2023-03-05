@@ -16,7 +16,7 @@ from flask_jwt_extended import (
     get_jwt_identity,
     jwt_required,
 )
-# from blocklist import BLOCKLIST
+from ..blocklist import BLOCKLIST
 from sqlalchemy import or_
 from datetime import timedelta
 # from flask_mail import Message
@@ -82,10 +82,10 @@ class StaffRegister(MethodView):
 
         # if the email and username does not exist in the database, then add and commit the user into the database
         staff = Staff(
-            first_name=staff_data["first_name"],
-            last_name=staff_data["last_name"],
-            username=staff_data["username"],
-            email=staff_data["email"],
+            first_name=staff_data["first_name"].lower(),
+            last_name=staff_data["last_name"].lower(),
+            username=staff_data["username"].lower(),
+            email=staff_data["email"].lower(),
             password=pbkdf2_sha256.hash(staff_data["password"]),
         )
         db.session.add(staff)
@@ -119,7 +119,7 @@ class UserLogin(MethodView):
     def post(self, user_data):
         if user_data["user_type"].lower() == "staff":
             # query the database to check if the username exist
-            staff = Staff.query.filter(Staff.username == user_data["username"]).first()
+            staff = Staff.query.filter(Staff.username == user_data["username"].lower()).first()
 
             # if the username exist, verify if the password matches
             # if the password is valid, create an access token along with s refresh token
@@ -135,7 +135,7 @@ class UserLogin(MethodView):
             )
         elif user_data["user_type"].lower() == "student":
             # query the database to check if the username exist
-            student = Student.query.filter(Student.username == user_data["username"]).first()
+            student = Student.query.filter(Student.username == user_data["username"].lower()).first()
 
             # if the username exist, verify if the password matches
             # if the password is valid, create an access token along with s refresh token
@@ -151,3 +151,17 @@ class UserLogin(MethodView):
             )
         else:
             abort(404, message="You have to be a student or staff to login")
+
+
+@blb.route("/user/logout")
+class UserLogin(MethodView):
+    # the jwt_required indicates that the access token will be required to log out
+    @jwt_required()
+    def post(self):
+        # get the current user's token
+        jti = get_jwt()["jti"]
+        # send the token to the BLOCKLIST set in the blocklist.py file
+        # this will revoke the token. A new access token will be created for you when you log in again
+        BLOCKLIST.add(jti)
+        # return this message for a successful logout
+        return {"message": "Successfully logged out"}
