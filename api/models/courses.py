@@ -11,6 +11,7 @@ class Course(db.Model):
     year = db.Column(db.Integer, nullable=False, default=datetime.now().year)
     unit = db.Column(db.Integer, nullable=False)
     created_at = db.Column(db.DateTime, nullable=False, default=datetime.now())
+    teacher = db.Column(db.String(50), db.ForeignKey('staffs.last_name' + ' ' + 'staffs.first_name'))
     tutor_id = db.Column(db.Integer, db.ForeignKey('staffs.id'), nullable=False)
 
     def __repr__(self):
