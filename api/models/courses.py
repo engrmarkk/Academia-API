@@ -5,9 +5,8 @@ from datetime import datetime
 class Course(db.Model):
     __tablename__ = 'courses'
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(80), nullable=False)
+    name = db.Column(db.String(100), nullable=False)
     code = db.Column(db.String(80), unique=True, nullable=False)
-    description = db.Column(db.String(120), nullable=False)
     semester = db.Column(db.Integer, nullable=False)
     year = db.Column(db.Integer, nullable=False, default=datetime.now().year)
     unit = db.Column(db.Integer, nullable=False)
