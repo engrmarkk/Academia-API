@@ -3,8 +3,8 @@ from enum import Enum
 
 
 class Role(Enum):
-    ACADEMICS = 'academics'
-    NON_ACADEMICS = 'non-academics'
+    TEACHER = 'teacher'
+    ICT = 'ict'
 
 
 class Staff(db.Model):
