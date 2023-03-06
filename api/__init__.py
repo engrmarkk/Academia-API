@@ -37,7 +37,7 @@ def create_app(configure=config_object["appcon"]):
     @app.shell_context_processor
     # This function returns the database, Question, Options, and Answer models
     def make_shell_context():
-        # This returns the database, Question, Options, and Answer models
+        # This returns the database, Staff, Student, Course and CourseRegistered models
         return {
                 "db": db,
                 "Staff": Staff,
