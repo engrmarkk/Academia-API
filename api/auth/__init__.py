@@ -4,7 +4,7 @@ from flask.views import MethodView
 from passlib.hash import pbkdf2_sha256
 from ..schemas import (
     plainStudentSchema,
-    plainStaffSchema,
+    UserRegisterSchema,
     plainUserLoginSchema
 )
 from ..models import Student, Admin
@@ -36,7 +36,7 @@ blb = Blueprint("user", __name__, description="user api")
 class Register(MethodView):
     # the argument schema, the input for this registration should have the fields from the schema
     # go to the schema.py file and see the fields in the plainUserSchema
-    @blb.arguments(plainStudentSchema)
+    @blb.arguments(UserRegisterSchema)
     def post(self, admin_data):
         # query the database to check if the username or email already exist in the database
         if Admin.query.filter(
