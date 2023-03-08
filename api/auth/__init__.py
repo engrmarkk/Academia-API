@@ -49,49 +49,17 @@ class Register(MethodView):
             abort(409, message="An admin with that username or email already exists.")
 
         # if the email and username does not exist in the database, then add and commit the user into the database
-        student = Student(
+        admin = Admin(
             first_name=admin_data["first_name"],
             last_name=admin_data["last_name"],
             department=admin_data["department"],
             email=admin_data["email"],
             password=pbkdf2_sha256.hash(admin_data["password"]),
         )
-        db.session.add(student)
+        db.session.add(admin)
         db.session.commit()
         # after a successful registration, return this message to the user
         return {"message": "admin created successfully"}
-
-
-# use the instance to create a route
-# this is the route to register a user
-@blb.route("/staff/register")
-class StaffRegister(MethodView):
-    # the argument schema, the input for this registration should have the fields from the schema
-    # go to the schema.py file and see the fields in the plainUserSchema
-    @blb.arguments(plainStaffSchema)
-    def post(self, staff_data):
-        # query the database to check if the username and email already exist in the database
-        if Staff.query.filter(
-                or_(
-                    Staff.username == staff_data["username"], Staff.email == staff_data["email"]
-                )
-        ).first():
-            # if any of those details already exist in the database, abort the registration process with
-            # a status code of 409
-            abort(409, message="A staff with that username or email already exists.")
-
-        # if the email and username does not exist in the database, then add and commit the user into the database
-        staff = Staff(
-            first_name=staff_data["first_name"].lower(),
-            last_name=staff_data["last_name"].lower(),
-            username=staff_data["username"].lower(),
-            email=staff_data["email"].lower(),
-            password=pbkdf2_sha256.hash(staff_data["password"]),
-        )
-        db.session.add(staff)
-        db.session.commit()
-        # after a successful registration, return this message to the user
-        return {"message": "Staff created successfully"}
 
 
 # this is an endpoint that uses the refresh token to generate a new access token
@@ -112,14 +80,14 @@ class TokenRefresh(MethodView):
 
 
 # the login route
-@blb.route("/user/login")
+@blb.route("/login")
 class UserLogin(MethodView):
     # the data to be provided during the login process should follow this schema's convention
     @blb.arguments(plainUserLoginSchema)
     def post(self, user_data):
-        if user_data["user_type"].lower() == "staff":
+        if user_data["user_code"].startswith('ADMIN'):
             # query the database to check if the username exist
-            staff = Staff.query.filter(Staff.username == user_data["username"].lower()).first()
+            admin = Admin.query.filter(Admin.admin_code == user_data["user_code"].lower()).first()
 
             # if the username exist, verify if the password matches
             # if the password is valid, create an access token along with s refresh token
