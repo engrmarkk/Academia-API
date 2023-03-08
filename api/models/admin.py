@@ -6,7 +6,6 @@ class Admin(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     first_name = db.Column(db.String(50), nullable=False)
     last_name = db.Column(db.String(50), nullable=False)
-    faculty = db.Column(db.String(70), nullable=False)
     department = db.Column(db.String(70), nullable=False)
     user_code = db.Column(db.String(50), unique=True, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
