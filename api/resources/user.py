@@ -1,6 +1,6 @@
 from flask_smorest import Blueprint, abort
 from flask.views import MethodView
-from ..models import Student, Staff
+from ..models import Student, Admin
 from http import HTTPStatus
 from ..extensions import db
 

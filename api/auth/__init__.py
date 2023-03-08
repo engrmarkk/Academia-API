@@ -7,7 +7,7 @@ from ..schemas import (
     plainStaffSchema,
     plainUserLoginSchema
 )
-from ..models import Student, Staff
+from ..models import Student, Admin
 from ..extensions import db
 from flask_jwt_extended import (
     create_access_token,
@@ -32,21 +32,21 @@ blb = Blueprint("user", __name__, description="user api")
 
 # use the instance to create a route
 # this is the route to register a user
-@blb.route("/student/register")
-class StudentRegister(MethodView):
+@blb.route("/register")
+class Register(MethodView):
     # the argument schema, the input for this registration should have the fields from the schema
     # go to the schema.py file and see the fields in the plainUserSchema
     @blb.arguments(plainStudentSchema)
-    def post(self, student_data):
-        # query the database to check if the username and email already exist in the database
-        if Student.query.filter(
+    def post(self, admin_data):
+        # query the database to check if the username or email already exist in the database
+        if Admin.query.filter(
                 or_(
-                    Student.username == student_data["username"], Student.email == student_data["email"]
+                    Admin.username == admin_data["username"], Admin.email == admin_data["email"]
                 )
         ).first():
             # if any of those details already exist in the database, abort the registration process with
             # a status code of 409
-            abort(409, message="A student with that username or email already exists.")
+            abort(409, message="An admin with that username or email already exists.")
 
         # if the email and username does not exist in the database, then add and commit the user into the database
         student = Student(
