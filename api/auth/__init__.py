@@ -50,10 +50,10 @@ class Register(MethodView):
 
         # if the email and username does not exist in the database, then add and commit the user into the database
         admin = Admin(
-            first_name=admin_data["first_name"],
-            last_name=admin_data["last_name"],
-            department=admin_data["department"],
-            email=admin_data["email"],
+            first_name=admin_data["first_name"].lower(),
+            last_name=admin_data["last_name"].lower(),
+            department=admin_data["department"].lower(),
+            email=admin_data["email"].lower(),
             password=pbkdf2_sha256.hash(admin_data["password"]),
         )
         db.session.add(admin)
@@ -87,14 +87,14 @@ class UserLogin(MethodView):
     def post(self, user_data):
         if user_data["user_code"].startswith('ADMIN'):
             # query the database to check if the username exist
-            admin = Admin.query.filter(Admin.admin_code == user_data["user_code"].lower()).first()
+            admin = Admin.query.filter(Admin.admin_code == user_data["code"]).first()
 
             # if the username exist, verify if the password matches
             # if the password is valid, create an access token along with s refresh token
             if admin:
-                if pbkdf2_sha256.verify(user_data["password"], staff.password):
-                    access_token = create_access_token(fresh=True, identity=staff.id)
-                    refresh_token = create_refresh_token(identity=staff.id)
+                if pbkdf2_sha256.verify(user_data["password"], admin.password):
+                    access_token = create_access_token(fresh=True, identity=admin.id)
+                    refresh_token = create_refresh_token(identity=admin.id)
                     # return the created tokens
                     return {"access_token": access_token, "refresh_token": refresh_token}
                     # if the username and the password are invalid, abort with a status code of 404
@@ -103,11 +103,11 @@ class UserLogin(MethodView):
             else:
                 abort(
                     404,
-                    message="staff not found , check if username is correct",
+                    message="user not found , invalid admin code",
                 )
-        elif user_data["user_type"].lower() == "student":
+        elif user_data["user_type"].startswith('ACADEMIA'):
             # query the database to check if the username exist
-            student = Student.query.filter(Student.username == user_data["username"].lower()).first()
+            student = Student.query.filter(Student.matric_code == user_data["code"]).first()
 
             # if the username exist, verify if the password matches
             # if the password is valid, create an access token along with s refresh token
@@ -123,13 +123,13 @@ class UserLogin(MethodView):
                 # if the username and the password are invalid, abort with a status code of 404
                 abort(
                     404,
-                    message="student not found , check if username is correct",
+                    message="student not found , invalid matric code",
                 )
         else:
-            abort(404, message="You have to be a student or staff to login")
+            abort(404, message="Invalid code")
 
 
-@blb.route("/user/logout")
+@blb.route("/logout")
 class UserLogin(MethodView):
     # the jwt_required indicates that the access token will be required to log out
     @jwt_required()
