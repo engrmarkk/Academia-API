@@ -7,7 +7,7 @@ class Admin(db.Model):
     first_name = db.Column(db.String(50), nullable=False)
     last_name = db.Column(db.String(50), nullable=False)
     department = db.Column(db.String(70), nullable=False)
-    user_code = db.Column(db.String(50), unique=True, nullable=False)
+    admin_code = db.Column(db.String(50), unique=True, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
     password = db.Column(db.Text, nullable=False)
 

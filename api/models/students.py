@@ -15,7 +15,7 @@ class Student(db.Model):
     email = db.Column(db.String(120), unique=True, nullable=False)
     faculty = db.Column(db.String(70), nullable=False)
     department = db.Column(db.String(70), nullable=False)
-    code = db.Column(db.String(50), unique=True, nullable=False)
+    matric_code = db.Column(db.String(50), unique=True, nullable=False)
     gpa = db.Column(db.Integer, nullable=False, default=0)
     password = db.Column(db.Text, nullable=False,
                          default=student_default_password('academia'))
