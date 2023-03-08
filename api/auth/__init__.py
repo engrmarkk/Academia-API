@@ -50,16 +50,16 @@ class Register(MethodView):
 
         # if the email and username does not exist in the database, then add and commit the user into the database
         student = Student(
-            first_name=student_data["first_name"],
-            last_name=student_data["last_name"],
-            username=student_data["username"],
-            email=student_data["email"],
-            password=pbkdf2_sha256.hash(student_data["password"]),
+            first_name=admin_data["first_name"],
+            last_name=admin_data["last_name"],
+            department=admin_data["department"],
+            email=admin_data["email"],
+            password=pbkdf2_sha256.hash(admin_data["password"]),
         )
         db.session.add(student)
         db.session.commit()
         # after a successful registration, return this message to the user
-        return {"message": "user created successfully"}
+        return {"message": "admin created successfully"}
 
 
 # use the instance to create a route
