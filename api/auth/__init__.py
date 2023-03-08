@@ -91,7 +91,7 @@ class UserLogin(MethodView):
 
             # if the username exist, verify if the password matches
             # if the password is valid, create an access token along with s refresh token
-            if staff:
+            if admin:
                 if pbkdf2_sha256.verify(user_data["password"], staff.password):
                     access_token = create_access_token(fresh=True, identity=staff.id)
                     refresh_token = create_refresh_token(identity=staff.id)
