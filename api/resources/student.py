@@ -80,7 +80,7 @@ class RegisterCourse(MethodView):
             abort(404, message="Course not found"), HTTPStatus.NOT_FOUND
         if course.department != student.department:
             abort(403, message="You are not allowed to register for this course"), HTTPStatus.FORBIDDEN
-        if course in student.courses:
+        if course in student.registered_courses:
             abort(403, message="You have already registered for this course"), HTTPStatus.FORBIDDEN
         course_registered = CourseRegistered(
             student_id=student.id,
@@ -92,4 +92,4 @@ class RegisterCourse(MethodView):
         )
         db.session.add(course_registered)
         db.session.commit()
-        return {"message": "Course registered successfully"}, HTTPStatus.CREATED
+        return {"message": f"<Course: {course_data['code']}> registered successfully"}, HTTPStatus.CREATED
