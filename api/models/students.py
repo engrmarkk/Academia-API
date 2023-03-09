@@ -1,4 +1,7 @@
+from functools import wraps
+from flask_jwt_extended import get_jwt_identity
 from ..extensions import db
+from flask_smorest import abort
 from passlib.hash import pbkdf2_sha256
 import random
 from datetime import datetime
@@ -33,3 +36,13 @@ class Student(db.Model):
 
     def __repr__(self):
         return '<User %r>' % self.username
+
+
+def student_required(func):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        student = Student.query.get(get_jwt_identity())
+        if not student:
+            abort(401, "This is a student arena")
+        return func(*args, **kwargs)
+    return wrapper
