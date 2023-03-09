@@ -73,7 +73,7 @@ class plainStudentSchema(Schema):
     last_name = fields.Str(required=True)
     matric_code = fields.Str(required=True, dump_only=True)
     email = fields.Str(required=True)
-    department = fields.Str(required=True)
+    department = fields.Str(dump_only=True)
     gpa = fields.Float(required=True)
     password = fields.Str(required=True, load_only=True)
     registered_courses = fields.Nested(plainCourseRegisteredSchema(), many=True)
@@ -81,14 +81,14 @@ class plainStudentSchema(Schema):
 
 class plainCourseSchema(Schema):
     id = fields.Int(dump_only=True)
-    name = fields.Str(required=True)
-    code = fields.Str(required=True)
-    description = fields.Str(required=True)
+    course_title = fields.Str(required=True)
+    course_code = fields.Str(required=True)
     semester = fields.Int(required=True)
-    year = fields.Int(required=True)
-    unit = fields.Int(required=True)
+    year = fields.Int(dump_only=True)
+    course_unit = fields.Int(required=True)
     created_at = fields.DateTime(dump_only=True)
-    tutor_id = fields.Int(required=True)
+    teacher = fields.Str(required=True)
+    department = fields.Str(required=True)
 
 
 class plainAdminSchema(Schema):
@@ -98,7 +98,7 @@ class plainAdminSchema(Schema):
     department = fields.Str(required=True)
     admin_code = fields.Str()
     email = fields.Str(required=True)
-    password = fields.Str(required=True, load_only=True)
+    password = fields.Str(load_only=True)
 
 
 class plainUserLoginSchema(Schema):
@@ -113,3 +113,9 @@ class UserRegisterSchema(Schema):
     email = fields.Str(required=True)
     department = fields.Str(required=True)
     password = fields.Str(required=True, load_only=True)
+
+
+class UpdatePasswordByStudentSchema(Schema):
+    old_password = fields.Str(required=True)
+    new_password = fields.Str(required=True)
+    confirm_password = fields.Str(required=True)
