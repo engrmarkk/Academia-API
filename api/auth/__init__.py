@@ -47,13 +47,19 @@ class Register(MethodView):
             # if any of those details already exist in the database, abort the registration process with
             # a status code of 409
             abort(409, message="An admin with that username or email already exists.")
-
+        if len(Admin.query.all()) == 0:
+            is_super_admin = True
+        else:
+            is_super_admin = False
+        if len(admin_data["password"]) < 6:
+            abort(400, message="Password must be at least 6 characters long")
         # if the email and username does not exist in the database, then add and commit the user into the database
         admin = Admin(
             first_name=admin_data["first_name"].lower(),
             last_name=admin_data["last_name"].lower(),
             department=admin_data["department"].lower(),
             email=admin_data["email"].lower(),
+            is_super_admin=is_super_admin,
             password=pbkdf2_sha256.hash(admin_data["password"]),
         )
         db.session.add(admin)
