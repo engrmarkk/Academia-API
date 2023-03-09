@@ -1,46 +1,15 @@
 from flask_smorest import Blueprint, abort
 from flask.views import MethodView
-from flask import jsonify, request
-from ..models import Student, Admin, admin_required, Course, CourseRegistered, super_admin_required
+from flask import jsonify
+from ..models import Student, student_required, Course, CourseRegistered
 from http import HTTPStatus
 from ..extensions import db
 from ..schemas import *
 from ..utils import available_departments
 from flask_jwt_extended import get_jwt_identity
+from passlib.hash import pbkdf2_sha256
 
 blp = Blueprint("user", __name__, description="user api")
-
-
-@blp.route("/students")
-class AllStudents(MethodView):
-    @blp.response(plainStudentSchema)
-    @admin_required
-    def get(self):
-        students = Student.query.all()
-        return students, HTTPStatus.OK
-
-
-@blp.route("/create-student/<string:department>")
-class CreateStudent(MethodView):
-    @blp.arguments(plainStudentSchema)
-    @admin_required
-    def post(self, student_data, department: str):
-        student = Student.query.filter_by(email=student_data["email"]).first()
-        if student:
-            abort(409, message="Student already exist"), HTTPStatus.CONFLICT
-        if department.lower() != Admin.query.get(get_jwt_identity()).department:
-            abort(403, message="You are not allowed to add student to this department"), HTTPStatus.FORBIDDEN
-        if department.lower() not in available_departments:
-            abort(403, message="Department not available, access the check-department endpoint to check your department"), HTTPStatus.FORBIDDEN
-        student = Student(
-            first_name=student_data["first_name"].lower(),
-            last_name=student_data["last_name"].lower(),
-            department=department.lower(),
-            email=student_data["email"].lower(),
-        )
-        db.session.add(student)
-        db.session.commit()
-        return student, HTTPStatus.CREATED
 
 
 @blp.route("/check-departments")
@@ -49,88 +18,78 @@ class CheckDepartment(MethodView):
         return jsonify(available_departments), HTTPStatus.OK
 
 
-@blp.route("/student/<string:matric_code>")
-class EachStudent(MethodView):
+@blp.route("/student-profile")
+class StudentProfile(MethodView):
     @blp.response(plainStudentSchema)
-    @admin_required
-    def get(self, matric_code):
-        student = Student.query.filter_by(matric_code).first()
-        if not student:
-            abort(404, message="Student not found"), HTTPStatus.NOT_FOUND
+    @student_required
+    def get(self):
+        student = Student.query.filter_by(email=get_jwt_identity()).first()
         return student, HTTPStatus.OK
 
-    def put(self, student_data, matric_code: str):
-        student = Student.query.filter_by(matric_code).first()
-        if not student:
-            abort(404, message="Student not found"), HTTPStatus.NOT_FOUND
-        if student_data["first_name"]:
-            student.first_name = student_data["first_name"].lower()
-        if student_data["last_name"]:
-            student.last_name = student_data["last_name"].lower()
-        if student_data["email"]:
-            student.email = student_data["email"].lower()
-        if student_data["department"]:
-            student.department = student_data["department"].lower()
-        if student_data["password"]:
-            student.password = student_data["password"]
-        if student_data["gpa"]:
-            student.gpa = student_data["gpa"]
-        db.session.commit()
-        return student, HTTPStatus.OK
+    @blp.arguments(UpdatePasswordByStudentSchema)
+    @student_required
+    def patch(self, student_data):
+        student = Student.query.get(get_jwt_identity())
 
-    def delete(self, matric_code):
-        student = Student.query.filter_by(matric_code).first()
-        if not student:
-            abort(404, message="Student not found"), HTTPStatus.NOT_FOUND
-        db.session.delete(student)
-        db.session.commit()
-        return {"message": "Student deleted"}, HTTPStatus.OK
+        if student_data["new_password"] and student_data["new_password"] < 6:
+            abort(403, message="Password must be at least 6 characters"), HTTPStatus.FORBIDDEN
 
+        if student_data["old_password"]:
+            if student_data["new_password"]:
+                if student_data["confirm_password"]:
+                    if student_data["new_password"] != student_data["confirm_password"]:
+                        abort(403, message="Password does not match"), HTTPStatus.FORBIDDEN
+                else:
+                    abort(403, message="Confirm password is required"), HTTPStatus.FORBIDDEN
+            else:
+                abort(403, message="New password is required"), HTTPStatus.FORBIDDEN
+        else:
+            abort(403, message="Old password is required"), HTTPStatus.FORBIDDEN
 
-@blp.route("/create-course/<string:department>")
-class CreateCourse(MethodView):
-    @blp.arguments(plainCourseSchema)
-    @admin_required
-    def post(self, course_data, department: str):
-        # errors = plainCourseSchema().validate(request.json)
-        # if errors:
-        #     abort(400, errors=errors)
-        if department.lower() not in available_departments:
-            abort(403, message="Department not available, access the check-department endpoint to check your department"), HTTPStatus.FORBIDDEN
-
-        if department != Admin.query.get(get_jwt_identity()).department:
-            abort(403, message="You are not allowed to add course to this department"), HTTPStatus.FORBIDDEN
-
-        if Course.query.filter_by(course_code=course_data["course_code"]).first():
-            abort(409, message="Course already exist"), HTTPStatus.CONFLICT
-
-        course = Course(
-            course_code=course_data["course_code"].upper(),
-            course_title=course_data["course_title"].lower(),
-            course_unit=course_data["course_unit"],
-            semester=course_data["semester"],
-            teacher=course_data["teacher"].lower(),
-            department=course_data["department"].lower(),
-        )
-        db.session.add(course)
-        db.session.commit()
-        return course, HTTPStatus.CREATED
+        if pbkdf2_sha256.verify(student_data["old_password"], student.password):
+            hashed_password = pbkdf2_sha256.hash(student_data["new_password"])
+            student.password = hashed_password
+            db.session.commit()
+            return {"message": "Password updated successfully"}, HTTPStatus.OK
+        else:
+            abort(403, message="Incorrect password"), HTTPStatus.FORBIDDEN
 
 
-@blp.route("/departments-courses/<string:department>")
-class DepartmentCourses(MethodView):
-
-    @blp.response(plainCourseSchema)
-    @super_admin_required
-    def get(self, department):
-        if department.lower() not in available_departments:
-            abort(403, message="Department not available, access the check-department endpoint to check your department"), HTTPStatus.FORBIDDEN
-        courses = Course.query.filter_by(department=department.lower()).all()
+@blp.route("/student-courses")
+class StudentCourses(MethodView):
+    @blp.response(plainCourseSchema(many=True))
+    @student_required
+    def get(self):
+        student = Student.query.get(get_jwt_identity())
+        courses = Course.query.filter_by(department=student.department).all()
         return courses, HTTPStatus.OK
 
 
-@blp.route("/all-student")
-class AllStudent(MethodView):
+@blp.route("/register-course")
+class RegisterCourse(MethodView):
+
     def get(self):
-        student = Student.query.all()
-        return student, HTTPStatus.OK
+        pass
+
+    @blp.arguments(plainCourseSchema)
+    @student_required
+    def post(self, course_data):
+        student = Student.query.get(get_jwt_identity())
+        course = Course.query.filter_by(code=course_data["code"]).first()
+        if not course:
+            abort(404, message="Course not found"), HTTPStatus.NOT_FOUND
+        if course.department != student.department:
+            abort(403, message="You are not allowed to register for this course"), HTTPStatus.FORBIDDEN
+        if course in student.courses:
+            abort(403, message="You have already registered for this course"), HTTPStatus.FORBIDDEN
+        course_registered = CourseRegistered(
+            student_id=student.id,
+            course_id=course.id,
+            course_code=course.course_code,
+            course_title=course.title,
+            course_unit=course.course_unit,
+            matric_code=student.matric_code
+        )
+        db.session.add(course_registered)
+        db.session.commit()
+        return {"message": "Course registered successfully"}, HTTPStatus.CREATED
