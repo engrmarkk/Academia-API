@@ -1,7 +1,7 @@
 from .extensions import db, migrate, jwt, app, api
 from .config import config_object
-from .models import Course, Staff, Student, CourseRegistered
-from .auth import blb as UserBlueprint
+from .models import Course, Admin, Student, CourseRegistered
+from .auth import blb as AuthBlueprint
 from .resources import *
 from flask import jsonify
 from http import HTTPStatus
@@ -19,11 +19,11 @@ def create_app(configure=config_object["appcon"]):
     jwt.init_app(app)
     api.init_app(app)
 
-    # api.add_namespace(user_namespace, path="/user")
-    api.add_namespace(UserBlueprint)
-    # api.add_namespace(option_namespace)
-    # api.add_namespace(answer_namespace)
-    # api.add_namespace(answer_namespace)
+    # This line of code registers the blueprint imported above
+    app.register_blueprint(AuthBlueprint)
+    app.register_blueprint(admin_blp)
+    app.register_blueprint(student_blp)
+    app.register_blueprint(super_admin_blp)
 
     @jwt.expired_token_loader
     def handle_expired_token_error(expired_token, func):
@@ -40,7 +40,7 @@ def create_app(configure=config_object["appcon"]):
         # This returns the database, Staff, Student, Course and CourseRegistered models
         return {
                 "db": db,
-                "Staff": Staff,
+                "Admin": Admin,
                 "Student": Student,
                 "Course": Course,
                 "CourseRegistered": CourseRegistered
