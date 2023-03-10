@@ -23,7 +23,6 @@ def create_app(configure=config_object["appcon"]):
     app.register_blueprint(AuthBlueprint)
     app.register_blueprint(admin_blp)
     app.register_blueprint(student_blp)
-    app.register_blueprint(super_admin_blp)
 
     @jwt.expired_token_loader
     def handle_expired_token_error(expired_token, func):
