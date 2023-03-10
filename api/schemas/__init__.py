@@ -8,7 +8,7 @@ Admin Model
     first_name
     last_name
     department
-    admin_code
+    adm_id
     email
     password
 """
@@ -23,7 +23,7 @@ Student Model
     email
     faculty
     department
-    matric_code
+    stud_id
     gpa
     password
     registered_courses : relationship
@@ -40,7 +40,6 @@ Course fields
     unit
     created_at
     teacher
-    department : foreignKey
 
 """
 
@@ -50,9 +49,9 @@ Registered Course fields
     id
     grade
     name
-    matric_code
+    stud_id
     unit
-    student_id
+    stud_id
     course_id
 """
 
@@ -71,9 +70,8 @@ class plainStudentSchema(Schema):
     id = fields.Int(dump_only=True)
     first_name = fields.Str(required=True)
     last_name = fields.Str(required=True)
-    matric_code = fields.Str(required=True, dump_only=True)
+    matric_id = fields.Str(required=True, dump_only=True)
     email = fields.Str(required=True)
-    department = fields.Str(dump_only=True)
     gpa = fields.Float(required=True)
     password = fields.Str(required=True, load_only=True)
     registered_courses = fields.Nested(plainCourseRegisteredSchema(), many=True)
@@ -83,20 +81,17 @@ class plainCourseSchema(Schema):
     id = fields.Int(dump_only=True)
     course_title = fields.Str(required=True)
     course_code = fields.Str(required=True)
-    semester = fields.Int(required=True)
     year = fields.Int(dump_only=True)
     course_unit = fields.Int(required=True)
     created_at = fields.DateTime(dump_only=True)
     teacher = fields.Str(required=True)
-    department = fields.Str(required=True)
 
 
 class plainAdminSchema(Schema):
     id = fields.Int(dump_only=True)
     first_name = fields.Str(required=True)
     last_name = fields.Str(required=True)
-    department = fields.Str(required=True)
-    admin_code = fields.Str()
+    admin_id = fields.Str()
     email = fields.Str(required=True)
     password = fields.Str(load_only=True)
 
@@ -119,3 +114,7 @@ class UpdatePasswordByStudentSchema(Schema):
     old_password = fields.Str(required=True)
     new_password = fields.Str(required=True)
     confirm_password = fields.Str(required=True)
+
+
+class plainGradeSchema(Schema):
+    grade = fields.Float(required=True)
