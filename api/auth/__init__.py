@@ -93,7 +93,7 @@ class UserLogin(MethodView):
     def post(self, user_data):
         if user_data["user_code"].startswith('ADMIN'):
             # query the database to check if the username exist
-            admin = Admin.query.filter(Admin.admin_code == user_data["code"]).first()
+            admin = Admin.query.filter(Admin.adm_id == user_data["code"]).first()
 
             # if the username exist, verify if the password matches
             # if the password is valid, create an access token along with s refresh token
@@ -113,7 +113,7 @@ class UserLogin(MethodView):
                 )
         elif user_data["user_type"].startswith('ACADEMIA'):
             # query the database to check if the username exist
-            student = Student.query.filter(Student.matric_code == user_data["code"]).first()
+            student = Student.query.filter(Student.stud_id == user_data["code"]).first()
 
             # if the username exist, verify if the password matches
             # if the password is valid, create an access token along with s refresh token
