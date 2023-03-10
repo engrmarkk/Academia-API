@@ -25,7 +25,7 @@ class AppConfig(Config):
     # This is the testing mode for the application
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     # This is the database URI for the application
-    SQLALCHEMY_DATABASE_URI = "sqlite:///" + os.path.join(BASE_DIR, "quiz.sqlite3")
+    SQLALCHEMY_DATABASE_URI = "sqlite:///" + os.path.join(BASE_DIR, "academia.sqlite3")
 
 
 class TestConfig(Config):
