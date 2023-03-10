@@ -13,10 +13,9 @@ class CourseRegistered(db.Model):
                                       info={'min': 'Grade cannot be less than 0', 'max': 'Grade cannot be greater than 100'}),
                       default=0.00, nullable=False
                       )
-    point = db.Column(db.Integer, default=0, nullable=False)
     course_code = db.Column(db.String(80), nullable=False)
     course_title = db.Column(db.String(100), nullable=False)
-    matric_code = db.Column(db.String(80), nullable=False)
+    stud_id = db.Column(db.String(80), nullable=False)
     course_unit = db.Column(db.Integer, nullable=False)
     student_id = db.Column(db.Integer, db.ForeignKey('students.id'), nullable=False, default=get_jwt_identity())
     course_id = db.Column(db.Integer, db.ForeignKey('courses.id'), nullable=False)

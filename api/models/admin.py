@@ -9,8 +9,7 @@ class Admin(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     first_name = db.Column(db.String(50), nullable=False)
     last_name = db.Column(db.String(50), nullable=False)
-    department = db.Column(db.String(70), nullable=False)
-    admin_code = db.Column(db.String(50), unique=True, nullable=False)
+    adm_id = db.Column(db.String(50), unique=True, nullable=False)
     super_admin = db.Column(db.Boolean, nullable=False, default=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
     password = db.Column(db.Text, nullable=False)
@@ -25,15 +24,5 @@ def admin_required(func):
         admin = Admin.query.get(get_jwt_identity())
         if not admin:
             abort(401, "Admin access required")
-        return func(*args, **kwargs)
-    return wrapper
-
-
-def super_admin_required(func):
-    @wraps(func)
-    def wrapper(*args, **kwargs):
-        admin = Admin.query.get(get_jwt_identity())
-        if not admin.super_admin:
-            abort(401, "Super admin access required")
         return func(*args, **kwargs)
     return wrapper

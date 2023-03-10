@@ -25,12 +25,12 @@ class Student(db.Model):
     first_name = db.Column(db.String(80), nullable=False)
     last_name = db.Column(db.String(80), nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
-    department = db.Column(db.String(70), nullable=False)
-    matric_code = db.Column(db.String(50), unique=True, nullable=False,
-                            default=matric_code_generator(f'ACA-{datetime.now().year}-'))
+    stud_id = db.Column(db.String(50), unique=True, nullable=False,
+                        default=matric_code_generator(f'ACA-{datetime.now().year}-'))
     gpa = db.Column(db.Float, nullable=False, default=0.00)
     password = db.Column(db.Text, nullable=False,
                          default=student_default_password('academia'))
+    changed_password = db.Column(db.Boolean, nullable=False, default=False)
     registered_courses = db.relationship('CourseRegistered',
                                          cascade="all, delete", backref='student', lazy=True)
 
