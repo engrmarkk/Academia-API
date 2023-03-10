@@ -1,21 +1,13 @@
 from flask_smorest import Blueprint, abort
 from flask.views import MethodView
-from flask import jsonify
 from ..models import Student, student_required, Course, CourseRegistered
 from http import HTTPStatus
 from ..extensions import db
 from ..schemas import *
-from ..utils import available_departments
 from flask_jwt_extended import get_jwt_identity
 from passlib.hash import pbkdf2_sha256
 
 blp = Blueprint("user", __name__, description="user api")
-
-
-@blp.route("/check-departments")
-class CheckDepartment(MethodView):
-    def get(self):
-        return jsonify(available_departments), HTTPStatus.OK
 
 
 @blp.route("/student-profile")
@@ -23,54 +15,45 @@ class StudentProfile(MethodView):
     @blp.response(plainStudentSchema)
     @student_required
     def get(self):
-        student = Student.query.filter_by(email=get_jwt_identity()).first()
+        student = Student.query.get(get_jwt_identity())
         return student, HTTPStatus.OK
 
     @blp.arguments(UpdatePasswordByStudentSchema)
     @student_required
-    def patch(self, student_data):
+    def patch(self, password_data):
         student = Student.query.get(get_jwt_identity())
 
-        if student_data["new_password"] and student_data["new_password"] < 6:
+        if password_data["new_password"] and password_data["new_password"] < 6:
             abort(403, message="Password must be at least 6 characters"), HTTPStatus.FORBIDDEN
-
-        if student_data["old_password"]:
-            if student_data["new_password"]:
-                if student_data["confirm_password"]:
-                    if student_data["new_password"] != student_data["confirm_password"]:
-                        abort(403, message="Password does not match"), HTTPStatus.FORBIDDEN
-                else:
-                    abort(403, message="Confirm password is required"), HTTPStatus.FORBIDDEN
+        if student.changed_password:
+            abort(403, message="Contact the admin to reset your password"), HTTPStatus.FORBIDDEN
+        if password_data["new_password"]:
+            if password_data["confirm_password"]:
+                if password_data["new_password"] != password_data["confirm_password"]:
+                    abort(403, message="Password does not match"), HTTPStatus.FORBIDDEN
             else:
-                abort(403, message="New password is required"), HTTPStatus.FORBIDDEN
+                abort(403, message="Confirm password is required"), HTTPStatus.FORBIDDEN
         else:
-            abort(403, message="Old password is required"), HTTPStatus.FORBIDDEN
+            abort(403, message="New password is required"), HTTPStatus.FORBIDDEN
 
-        if pbkdf2_sha256.verify(student_data["old_password"], student.password):
-            hashed_password = pbkdf2_sha256.hash(student_data["new_password"])
-            student.password = hashed_password
-            db.session.commit()
-            return {"message": "Password updated successfully"}, HTTPStatus.OK
-        else:
-            abort(403, message="Incorrect password"), HTTPStatus.FORBIDDEN
+        hashed_password = pbkdf2_sha256.hash(password_data["new_password"])
+        student.password = hashed_password
+        student.changed_password = True
+        db.session.commit()
+        return {"message": "Password updated successfully",
+                "note": "You need to contact your admin for subsequent change of password"}, HTTPStatus.OK
 
 
-@blp.route("/student-courses")
+@blp.route("/available-courses")
 class StudentCourses(MethodView):
     @blp.response(plainCourseSchema(many=True))
-    @student_required
     def get(self):
-        student = Student.query.get(get_jwt_identity())
-        courses = Course.query.filter_by(department=student.department).all()
+        courses = Course.query.all()
         return courses, HTTPStatus.OK
 
 
 @blp.route("/register-course")
 class RegisterCourse(MethodView):
-
-    def get(self):
-        pass
-
     @blp.arguments(plainCourseSchema)
     @student_required
     def post(self, course_data):
@@ -78,8 +61,6 @@ class RegisterCourse(MethodView):
         course = Course.query.filter_by(code=course_data["code"]).first()
         if not course:
             abort(404, message="Course not found"), HTTPStatus.NOT_FOUND
-        if course.department != student.department:
-            abort(403, message="You are not allowed to register for this course"), HTTPStatus.FORBIDDEN
         if course in student.registered_courses:
             abort(403, message="You have already registered for this course"), HTTPStatus.FORBIDDEN
         course_registered = CourseRegistered(
@@ -88,7 +69,7 @@ class RegisterCourse(MethodView):
             course_code=course.course_code,
             course_title=course.title,
             course_unit=course.course_unit,
-            matric_code=student.matric_code
+            stud_id=student.stud_id
         )
         db.session.add(course_registered)
         db.session.commit()
