@@ -10,6 +10,16 @@ from passlib.hash import pbkdf2_sha256
 blp = Blueprint("user", __name__, description="user api")
 
 
+@blp.route("/get-student-id/<string:email>")
+class GetStudentId(MethodView):
+    @blp.response(plainStudentID)
+    def get(self, email):
+        student = Student.query.filter_by(email=email).first()
+        if not student:
+            abort(404, message="Student not found, contact admin"), HTTPStatus.NOT_FOUND
+        return student, HTTPStatus.OK
+
+
 @blp.route("/student-profile")
 class StudentProfile(MethodView):
     @blp.response(plainStudentSchema)
