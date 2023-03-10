@@ -5,7 +5,7 @@ from flask_jwt_extended import JWTManager
 from flask_smorest import Api
 
 app = Flask(__name__)
-db = SQLAlchemy(app)
+db = SQLAlchemy()
 migrate = Migrate()
 jwt = JWTManager()
 api = Api()
