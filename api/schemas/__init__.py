@@ -74,7 +74,7 @@ class plainStudentSchema(Schema):
     email = fields.Str(required=True)
     gpa = fields.Float(required=True)
     password = fields.Str(required=True, load_only=True)
-    registered_courses = fields.Nested(plainCourseRegisteredSchema(), many=True)
+    # registered_courses = fields.Nested(plainCourseRegisteredSchema(), many=True)
 
 
 class plainCourseSchema(Schema):
@@ -106,7 +106,6 @@ class UserRegisterSchema(Schema):
     first_name = fields.Str(required=True)
     last_name = fields.Str(required=True)
     email = fields.Str(required=True)
-    department = fields.Str(required=True)
     password = fields.Str(required=True, load_only=True)
 
 
