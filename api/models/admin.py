@@ -2,6 +2,8 @@ from ..extensions import db
 from functools import wraps
 from flask_jwt_extended import get_jwt_identity
 from flask_smorest import abort
+from .students import code_generator
+from datetime import datetime
 
 
 class Admin(db.Model):
@@ -9,8 +11,9 @@ class Admin(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     first_name = db.Column(db.String(50), nullable=False)
     last_name = db.Column(db.String(50), nullable=False)
-    adm_id = db.Column(db.String(50), unique=True, nullable=False)
-    super_admin = db.Column(db.Boolean, nullable=False, default=False)
+    adm_id = db.Column(db.String(50), unique=True, nullable=False,
+                       default=code_generator(f'ADMIN-{datetime.now().year}-')
+                       )
     email = db.Column(db.String(120), unique=True, nullable=False)
     password = db.Column(db.Text, nullable=False)
 

@@ -17,16 +17,17 @@ class CourseRegistered(db.Model):
     course_title = db.Column(db.String(100), nullable=False)
     stud_id = db.Column(db.String(80), nullable=False)
     course_unit = db.Column(db.Integer, nullable=False)
-    student_id = db.Column(db.Integer, db.ForeignKey('students.id'), nullable=False, default=get_jwt_identity())
+    student_id = db.Column(db.Integer, db.ForeignKey('students.id'), nullable=False)
     course_id = db.Column(db.Integer, db.ForeignKey('courses.id'), nullable=False)
-
-    def check_if_registered(self, course_code):
-        course = CourseRegistered.query.filter_by(
-            course_code=course_code, student_id=get_jwt_identity()
-        ).first()
-        if course:
-            return True
-        return False
 
     def __repr__(self):
         return '<CourseRegistered %r>' % self.id
+
+
+def check_if_registered(course_code):
+    course = CourseRegistered.query.filter_by(
+        course_code=course_code, student_id=get_jwt_identity()
+    ).first()
+    if course:
+        return True
+    return False
