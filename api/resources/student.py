@@ -1,39 +1,41 @@
 from flask_smorest import Blueprint, abort
 from flask.views import MethodView
-from ..models import Student, student_required, Course, CourseRegistered
+from ..models import Student, student_required, Course, CourseRegistered, check_if_registered
 from http import HTTPStatus
 from ..extensions import db
 from ..schemas import *
-from flask_jwt_extended import get_jwt_identity
+from flask_jwt_extended import get_jwt_identity, jwt_required
 from passlib.hash import pbkdf2_sha256
 
-blp = Blueprint("user", __name__, description="user api")
+blp = Blueprint("student", __name__, description="student accessible endpoints")
 
 
 @blp.route("/get-student-id/<string:email>")
 class GetStudentId(MethodView):
-    @blp.response(plainStudentID)
+    @blp.response(200, plainStudentID)
     def get(self, email):
         student = Student.query.filter_by(email=email).first()
         if not student:
             abort(404, message="Student not found, contact admin"), HTTPStatus.NOT_FOUND
-        return student, HTTPStatus.OK
+        return student
 
 
 @blp.route("/student-profile")
 class StudentProfile(MethodView):
-    @blp.response(plainStudentSchema)
+    @blp.response(200, plainStudentSchema)
+    @jwt_required()
     @student_required
     def get(self):
-        student = Student.query.get(get_jwt_identity())
-        return student, HTTPStatus.OK
+        student = Student.query.filter_by(stud_id=get_jwt_identity()).first()
+        return student
 
     @blp.arguments(UpdatePasswordByStudentSchema)
+    @jwt_required()
     @student_required
     def patch(self, password_data):
-        student = Student.query.get(get_jwt_identity())
+        student = Student.query.filter_by(stud_id=get_jwt_identity()).first()
 
-        if password_data["new_password"] and password_data["new_password"] < 6:
+        if password_data["new_password"] and len(password_data["new_password"]) < 6:
             abort(403, message="Password must be at least 6 characters"), HTTPStatus.FORBIDDEN
         if student.changed_password:
             abort(403, message="Contact the admin to reset your password"), HTTPStatus.FORBIDDEN
@@ -56,10 +58,10 @@ class StudentProfile(MethodView):
 
 @blp.route("/available-courses")
 class StudentCourses(MethodView):
-    @blp.response(plainCourseSchema(many=True))
+    @blp.response(200, plainCourseSchema(many=True))
     def get(self):
         courses = Course.query.all()
-        return courses, HTTPStatus.OK
+        return courses
 
 
 @blp.route("/register-course")
@@ -67,12 +69,12 @@ class RegisterCourse(MethodView):
     @blp.arguments(plainCourseSchema)
     @student_required
     def post(self, course_data):
-        student = Student.query.get(get_jwt_identity())
+        student = Student.query.filter_by(stud_id=get_jwt_identity()).first()
         course = Course.query.filter_by(code=course_data["code"]).first()
         if not course:
             abort(404, message="Course not found"), HTTPStatus.NOT_FOUND
-        if course in student.registered_courses:
-            abort(403, message="You have already registered for this course"), HTTPStatus.FORBIDDEN
+        if check_if_registered(course_data["code"]):
+            abort(403, message="Course already registered"), HTTPStatus.FORBIDDEN
         course_registered = CourseRegistered(
             student_id=student.id,
             course_id=course.id,
