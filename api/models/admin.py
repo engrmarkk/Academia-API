@@ -25,7 +25,6 @@ def admin_required(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
         logged_user = get_jwt_identity()
-        print(logged_user)
         if not logged_user.startswith('ADMIN'):
             abort(401, message="Admin access required")
         return func(*args, **kwargs)

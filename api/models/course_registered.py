@@ -17,6 +17,8 @@ class CourseRegistered(db.Model):
     course_title = db.Column(db.String(100), nullable=False)
     stud_id = db.Column(db.String(80), nullable=False)
     course_unit = db.Column(db.Integer, nullable=False)
+    first_name = db.Column(db.String(50), nullable=False)
+    last_name = db.Column(db.String(50), nullable=False)
     student_id = db.Column(db.Integer, db.ForeignKey('students.id'), nullable=False)
     course_id = db.Column(db.Integer, db.ForeignKey('courses.id'), nullable=False)
 

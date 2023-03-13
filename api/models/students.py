@@ -41,8 +41,8 @@ class Student(db.Model):
 def student_required(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
-        student = Student.query.get(get_jwt_identity())
-        if not student:
-            abort(401, "This is a student arena")
+        logged_user = get_jwt_identity()
+        if not logged_user.startswith('ACA'):
+            abort(401, message="This is a student arena")
         return func(*args, **kwargs)
     return wrapper
