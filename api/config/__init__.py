@@ -27,6 +27,19 @@ class Config:
     OPENAPI_SWAGGER_UI_VERSION = '3.23.11'
     OPENAPI_SWAGGER_UI_JSONEDITOR = True
     PROPAGATE_EXCEPTIONS = True
+    API_SPEC_OPTIONS = {
+        'security': [{"bearerAuth": []}],
+        'components': {
+            "securitySchemes":
+                {
+                    "bearerAuth": {
+                        "type": "http",
+                        "scheme": "bearer",
+                        "bearerFormat": "JWT"
+                    }
+                }
+        }
+    }
 
 
 class AppConfig(Config):
