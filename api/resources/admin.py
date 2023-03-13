@@ -2,26 +2,34 @@ from flask_smorest import Blueprint, abort
 from flask.views import MethodView
 from ..schemas import *
 from ..models import Student, Course, \
-    admin_required, student_default_password, CourseRegistered
+    admin_required, student_default_password, CourseRegistered, Admin
 from http import HTTPStatus
 from ..extensions import db
 from ..utils import calculate_gpa
+from flask_jwt_extended import jwt_required
 
-blp = Blueprint("admin", __name__, description="admin api")
+blp = Blueprint("admin", __name__, description="admin accessible endpoints")
 
 
 @blp.route("/students")
 class AllStudents(MethodView):
-    @blp.response(plainStudentSchema(many=True))
+    @blp.response(200, plainStudentSchema(many=True))
+    @blp.doc(description='Get all students',
+             summary='Get all registered students with their registered courses')
+    @jwt_required()
     @admin_required
     def get(self):
         students = Student.query.all()
-        return students, HTTPStatus.OK
+        return students
 
 
 @blp.route("/create-student")
 class CreateStudent(MethodView):
-    @blp.arguments(plainStudentSchema)
+    @blp.arguments(plainStudentID)
+    @blp.response(200, plainStudentID)
+    @blp.doc(description='Create a student',
+             summary='Create students')
+    @jwt_required()
     @admin_required
     def post(self, student_data):
         student = Student.query.filter_by(email=student_data["email"]).first()
@@ -34,19 +42,28 @@ class CreateStudent(MethodView):
         )
         db.session.add(student)
         db.session.commit()
-        return student, HTTPStatus.CREATED
+        return student
 
 
 @blp.route("/student/<string:stud_id>")
 class EachStudent(MethodView):
-    @blp.response(plainStudentSchema)
+    @blp.response(200, plainStudentSchema)
+    @blp.doc(description='Get a student by stud_id',
+             summary='Get a student\'s details')
+    @jwt_required()
     @admin_required
     def get(self, stud_id):
         student = Student.query.filter_by(stud_id=stud_id).first()
         if not student:
             abort(404, message="Student not found/Invalid code"), HTTPStatus.NOT_FOUND
-        return student, HTTPStatus.OK
+        return student
 
+    @blp.arguments(plainStudentSchema)
+    @blp.response(200, plainStudentSchema)
+    @blp.doc(description='Update a student by stud_id',
+             summary='Update a student\'s details')
+    @jwt_required()
+    @admin_required
     def put(self, student_data, stud_id: str):
         student = Student.query.filter_by(stud_id).first()
         if not student:
@@ -58,8 +75,12 @@ class EachStudent(MethodView):
         if student_data["email"]:
             student.email = student_data["email"].lower()
         db.session.commit()
-        return student, HTTPStatus.OK
+        return student
 
+    @blp.doc(description='Delete a student by stud_id',
+             summary='Delete a student from the system')
+    @jwt_required()
+    @admin_required
     def delete(self, stud_id):
         student = Student.query.filter_by(stud_id).first()
         if not student:
@@ -71,6 +92,10 @@ class EachStudent(MethodView):
 
 @blp.route("/reset-student-password/<string:stud_id>")
 class ResetStudentPassword(MethodView):
+
+    @blp.doc(description='Reset student password',
+             summary='Reset student password to default')
+    @jwt_required()
     @admin_required
     def patch(self, stud_id):
         student = Student.query.filter_by(stud_id).first()
@@ -82,9 +107,13 @@ class ResetStudentPassword(MethodView):
         return {"message": "Password reset successfully"}, HTTPStatus.OK
 
 
-@blp.route("/create-course/<string:department>")
+@blp.route("/create-course")
 class CreateCourse(MethodView):
     @blp.arguments(plainCourseSchema)
+    @blp.response(200, plainCourseSchema)
+    @blp.doc(description='Create a course',
+             summary='Create courses for the system')
+    @jwt_required()
     @admin_required
     def post(self, course_data):
         # errors = plainCourseSchema().validate(request.json)
@@ -102,42 +131,81 @@ class CreateCourse(MethodView):
         )
         db.session.add(course)
         db.session.commit()
-        return course, HTTPStatus.CREATED
+        return course
 
 
 @blp.route("/upload-grade/<string:stud_id>/<string:course_code>")
 class UploadGrade(MethodView):
     @blp.arguments(plainGradeSchema)
+    @blp.response(200, plainCourseRegisteredSchema)
+    @blp.doc(description='Upload grade for a student',
+             summary='Upload grade for a student using stud_id (i.e matric number) and course_code')
+    @jwt_required()
     @admin_required
     def put(self, grade_data, stud_id: str, course_code: str):
         student = Student.query.filter_by(stud_id=stud_id).first()
         if not student:
             abort(404, message="Student not found/Invalid code"), HTTPStatus.NOT_FOUND
-        course = Course.query.filter_by(course_code=course_code).first()
+        course = Course.query.filter_by(course_code=course_code.upper()).first()
         if not course:
             abort(404, message="Course not found/Invalid code"), HTTPStatus.NOT_FOUND
         course_registered = CourseRegistered.query.filter_by(
-            stud_id=stud_id, course_code=course_code
+            stud_id=stud_id, course_code=course_code.upper()
         ).first()
+        if course_registered and course_registered.grade:
+            abort(409, message="Grade already uploaded"), HTTPStatus.CONFLICT
         if not course_registered:
             abort(404, message="Student not registered for this course"), HTTPStatus.NOT_FOUND
+        if not grade_data["grade"]:
+            abort(400, message="Grade cannot be empty"), HTTPStatus.BAD_REQUEST
         course_registered.grade = grade_data["grade"]
         db.session.commit()
-        return course_registered, HTTPStatus.OK
+        return course_registered
 
 
 @blp.route("/calculate-gpa/<string:stud_id>")
 class CalculateGPA(MethodView):
+
+    @blp.doc(description='Calculate student GPA',
+             summary='Calculate student GPA using stud_id (i.e matric number)')
+    @jwt_required()
     @admin_required
     def patch(self, stud_id):
         student = Student.query.filter_by(stud_id=stud_id).first()
         if not student:
             abort(404, message="Student not found/Invalid code"), HTTPStatus.NOT_FOUND
-        student_grade = student.course_registered.grade
-        units = student.course_registered.course.course_unit
-        if not student_grade:
+
+        course_registered_records = CourseRegistered.query.filter_by(stud_id=stud_id).all()
+        student_grades = [record.grade for record in course_registered_records]
+
+        course_registered_records = CourseRegistered.query.filter_by(stud_id=stud_id).all()
+        student_units = [record.course_unit for record in course_registered_records]
+
+        if not student_grades:
             abort(404, message="Student has no grade(s)"), HTTPStatus.NOT_FOUND
-        gpa = calculate_gpa(student_grade, units)
+        gpa = calculate_gpa(student_grades, student_units)
         student.gpa = gpa
         db.session.commit()
         return {"message": f"Student GPA is : {gpa}"}, HTTPStatus.OK
+
+
+@blp.route("/get-admins")
+class GetAdmin(MethodView):
+    @blp.response(200, plainAdminSchema(many=True))
+    @blp.doc(description='Get all admins',
+             summary='Get all registered admins')
+    def get(self):
+        admin = Admin.query.all()
+        return admin
+
+
+@blp.route("/courses-students")
+class GetCoursesStudents(MethodView):
+    @blp.response(200, ListCoursesWithStudentSchema(many=True))
+    @blp.doc(description='Get all courses and students registered for each course',
+             summary='Get all courses and students registered for each course')
+    @jwt_required()
+    @admin_required
+    def get(self):
+        all_course = Course.query.all()
+        return all_course
