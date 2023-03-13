@@ -6,10 +6,9 @@ class plainStudentSchema(Schema):
     id = fields.Int(dump_only=True)
     first_name = fields.Str(required=True)
     last_name = fields.Str(required=True)
-    matric_id = fields.Str(required=True, dump_only=True)
+    stud_id = fields.Str(required=True, dump_only=True)
     email = fields.Str(required=True)
     gpa = fields.Float(required=True)
-    password = fields.Str(required=True, load_only=True)
     registered_courses = fields.Nested(plainCourseRegisteredSchema(), many=True)
 
 
