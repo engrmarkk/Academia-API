@@ -2,11 +2,7 @@
 from flask_smorest import Blueprint, abort
 from flask.views import MethodView
 from passlib.hash import pbkdf2_sha256
-from ..schemas import (
-    plainStudentSchema,
-    UserRegisterSchema,
-    plainUserLoginSchema
-)
+from ..schemas import *
 from ..models import Student, Admin
 from ..extensions import db
 from flask_jwt_extended import (
@@ -17,13 +13,11 @@ from flask_jwt_extended import (
     jwt_required,
 )
 from ..blocklist import BLOCKLIST
-from sqlalchemy import or_
+# from sqlalchemy import or_
 from datetime import timedelta
-# from flask_mail import Message
-# import random
 
 # create an instance of the Blueprint imported from flask_smorest
-blb = Blueprint("user", __name__, description="user api")
+blb = Blueprint("auth", __name__, description="auth api")
 
 
 # # generate a random token for resetting the password
@@ -37,35 +31,28 @@ class Register(MethodView):
     # the argument schema, the input for this registration should have the fields from the schema
     # go to the schema.py file and see the fields in the plainUserSchema
     @blb.arguments(UserRegisterSchema)
+    @blb.response(201, plainAdminSchema)
+    @blb.doc(description="Register a new user",
+             summary="Register a new user")
     def post(self, admin_data):
         # query the database to check if the username or email already exist in the database
-        if Admin.query.filter(
-                or_(
-                    Admin.username == admin_data["username"], Admin.email == admin_data["email"]
-                )
-        ).first():
+        if Admin.query.filter(Admin.email == admin_data["email"].lower()).first():
             # if any of those details already exist in the database, abort the registration process with
             # a status code of 409
             abort(409, message="An admin with that username or email already exists.")
-        if len(Admin.query.all()) == 0:
-            is_super_admin = True
-        else:
-            is_super_admin = False
         if len(admin_data["password"]) < 6:
             abort(400, message="Password must be at least 6 characters long")
         # if the email and username does not exist in the database, then add and commit the user into the database
         admin = Admin(
             first_name=admin_data["first_name"].lower(),
             last_name=admin_data["last_name"].lower(),
-            department=admin_data["department"].lower(),
             email=admin_data["email"].lower(),
-            is_super_admin=is_super_admin,
             password=pbkdf2_sha256.hash(admin_data["password"]),
         )
         db.session.add(admin)
         db.session.commit()
         # after a successful registration, return this message to the user
-        return {"message": "admin created successfully"}
+        return admin
 
 
 # this is an endpoint that uses the refresh token to generate a new access token
@@ -73,6 +60,8 @@ class Register(MethodView):
 class TokenRefresh(MethodView):
     # jwt_required simply means a token will be required to access this route
     # for you to generate a token, you need too login first
+    @blb.doc(description="Refresh an access token",
+             summary="Refresh an access token using a refresh token")
     @jwt_required(refresh=True)
     def post(self):
         # get the current user's id, use it as an identity to create a new access token using the refresh token
@@ -90,8 +79,11 @@ class TokenRefresh(MethodView):
 class UserLogin(MethodView):
     # the data to be provided during the login process should follow this schema's convention
     @blb.arguments(plainUserLoginSchema)
+    @blb.doc(description="Login a user",
+             summary="Login a user after providing a valid code and password:"
+                     "code is stud_id for students and adm_id for admins",)
     def post(self, user_data):
-        if user_data["user_code"].startswith('ADMIN'):
+        if user_data["code"].startswith('ADMIN'):
             # query the database to check if the username exist
             admin = Admin.query.filter(Admin.adm_id == user_data["code"]).first()
 
@@ -99,8 +91,8 @@ class UserLogin(MethodView):
             # if the password is valid, create an access token along with s refresh token
             if admin:
                 if pbkdf2_sha256.verify(user_data["password"], admin.password):
-                    access_token = create_access_token(fresh=True, identity=admin.id)
-                    refresh_token = create_refresh_token(identity=admin.id)
+                    access_token = create_access_token(fresh=True, identity=admin.adm_id)
+                    refresh_token = create_refresh_token(identity=admin.adm_id)
                     # return the created tokens
                     return {"access_token": access_token, "refresh_token": refresh_token}
                     # if the username and the password are invalid, abort with a status code of 404
@@ -111,7 +103,7 @@ class UserLogin(MethodView):
                     404,
                     message="user not found , invalid admin code",
                 )
-        elif user_data["user_type"].startswith('ACADEMIA'):
+        elif user_data["code"].startswith('ACA'):
             # query the database to check if the username exist
             student = Student.query.filter(Student.stud_id == user_data["code"]).first()
 
@@ -119,8 +111,8 @@ class UserLogin(MethodView):
             # if the password is valid, create an access token along with s refresh token
             if student:
                 if pbkdf2_sha256.verify(user_data["password"], student.password):
-                    access_token = create_access_token(fresh=True, identity=student.id)
-                    refresh_token = create_refresh_token(identity=student.id)
+                    access_token = create_access_token(fresh=True, identity=student.stud_id)
+                    refresh_token = create_refresh_token(identity=student.stud_id)
                     # return the created tokens
                     return {"access_token": access_token, "refresh_token": refresh_token}
                 else:
@@ -138,6 +130,8 @@ class UserLogin(MethodView):
 @blb.route("/logout")
 class UserLogin(MethodView):
     # the jwt_required indicates that the access token will be required to log out
+    @blb.doc(description="Logout a user",
+             summary="Logout a user after providing a valid access token")
     @jwt_required()
     def post(self):
         # get the current user's token
