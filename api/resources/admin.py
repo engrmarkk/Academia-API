@@ -26,7 +26,7 @@ class AllStudents(MethodView):
 @blp.route("/create-student")
 class CreateStudent(MethodView):
     @blp.arguments(plainStudentID)
-    @blp.response(200, plainStudentID)
+    @blp.response(201, plainStudentID)
     @blp.doc(description='Create a student',
              summary='Create students')
     @jwt_required()
