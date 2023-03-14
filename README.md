@@ -360,7 +360,7 @@ RESPONSE
 ]
 ```
 
-GET (Get specific student) http://127.0.0.1:5000/student/<stud_id> <br>
+GET (Get specific student) http://127.0.0.1:5000/student/<stud_id>/ <br>
 @admin_required
 
 RESPONSE
