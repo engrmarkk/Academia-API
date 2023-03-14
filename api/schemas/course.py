@@ -16,6 +16,7 @@ class plainCourseRegisteredSchema(Schema):
     grade = fields.Float(dump_only=True)
     course_code = fields.Str(required=True)
     course_title = fields.Str(required=True)
+    course_unit = fields.Int(required=True)
 
 
 class StudentWhoRegisteredACourseSchema(Schema):
