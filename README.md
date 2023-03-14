@@ -43,6 +43,7 @@
       <a href="#about-Academia-API">About the project</a>
       <ul>
         <li><a href="#built-with">Built With</a></li>
+        <li><a href="#features">Features</a></li>
       </ul>
     </li>
     <li>
