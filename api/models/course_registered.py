@@ -28,7 +28,7 @@ class CourseRegistered(db.Model):
 
 def check_if_registered(course_code):
     course = CourseRegistered.query.filter_by(
-        course_code=course_code, student_id=get_jwt_identity()
+        course_code=course_code, stud_id=get_jwt_identity()
     ).first()
     if course:
         return True
