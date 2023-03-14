@@ -24,6 +24,12 @@ class plainStudentID(Schema):
     stud_id = fields.Str(dump_only=True)
 
 
+class UpdateStudentDetails(Schema):
+    first_name = fields.Str(required=True)
+    last_name = fields.Str(required=True)
+    email = fields.Str(required=True)
+
+
 """
 Student Model
 
