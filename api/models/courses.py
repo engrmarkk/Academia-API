@@ -11,7 +11,7 @@ class Course(db.Model):
     course_unit = db.Column(db.Integer, nullable=False)
     created_at = db.Column(db.DateTime, nullable=False, default=datetime.now())
     teacher = db.Column(db.String(150), nullable=False)
-    registered_courses = db.relationship('CourseRegistered', backref='course', lazy=True)
+    registered_courses = db.relationship('CourseRegistered', backref='course', lazy=True, cascade="all, delete")
     student_registered = db.relationship('CourseRegistered', viewonly=True, overlaps="course,registered_courses", backref='student_')
 
     def __repr__(self):
