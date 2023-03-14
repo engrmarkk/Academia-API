@@ -55,17 +55,17 @@ class EachStudent(MethodView):
     def get(self, stud_id):
         student = Student.query.filter_by(stud_id=stud_id).first()
         if not student:
-            abort(404, message="Student not found/Invalid code"), HTTPStatus.NOT_FOUND
+            abort(404, message="Student not found/Invalid stud_id"), HTTPStatus.NOT_FOUND
         return student
 
-    @blp.arguments(plainStudentSchema)
-    @blp.response(200, plainStudentSchema)
+    @blp.arguments(UpdateStudentDetails)
+    @blp.response(200, UpdateStudentDetails)
     @blp.doc(description='Update a student by stud_id',
              summary='Update a student\'s details')
     @jwt_required()
     @admin_required
     def put(self, student_data, stud_id: str):
-        student = Student.query.filter_by(stud_id).first()
+        student = Student.query.filter_by(stud_id=stud_id).first()
         if not student:
             abort(404, message="Student not found"), HTTPStatus.NOT_FOUND
         if student_data["first_name"]:
@@ -82,7 +82,7 @@ class EachStudent(MethodView):
     @jwt_required()
     @admin_required
     def delete(self, stud_id):
-        student = Student.query.filter_by(stud_id).first()
+        student = Student.query.filter_by(stud_id=stud_id).first()
         if not student:
             abort(404, message="Student not found"), HTTPStatus.NOT_FOUND
         db.session.delete(student)
@@ -98,9 +98,9 @@ class ResetStudentPassword(MethodView):
     @jwt_required()
     @admin_required
     def patch(self, stud_id):
-        student = Student.query.filter_by(stud_id).first()
+        student = Student.query.filter_by(stud_id=stud_id).first()
         if not student:
-            abort(404, message="Student not found/Invalid code"), HTTPStatus.NOT_FOUND
+            abort(404, message="Student not found/Invalid stud_id"), HTTPStatus.NOT_FOUND
         student.password = student_default_password('academia')
         student.password_changed = False
         db.session.commit()
@@ -145,15 +145,15 @@ class UploadGrade(MethodView):
     def put(self, grade_data, stud_id: str, course_code: str):
         student = Student.query.filter_by(stud_id=stud_id).first()
         if not student:
-            abort(404, message="Student not found/Invalid code"), HTTPStatus.NOT_FOUND
+            abort(404, message="Student not found/Invalid stud_id"), HTTPStatus.NOT_FOUND
         course = Course.query.filter_by(course_code=course_code.upper()).first()
         if not course:
-            abort(404, message="Course not found/Invalid code"), HTTPStatus.NOT_FOUND
+            abort(404, message="Course not found/Invalid course_code"), HTTPStatus.NOT_FOUND
         course_registered = CourseRegistered.query.filter_by(
             stud_id=stud_id, course_code=course_code.upper()
         ).first()
-        if course_registered and course_registered.grade:
-            abort(409, message="Grade already uploaded"), HTTPStatus.CONFLICT
+        # if course_registered and course_registered.grade:
+        #     abort(409, message="Grade already uploaded"), HTTPStatus.CONFLICT
         if not course_registered:
             abort(404, message="Student not registered for this course"), HTTPStatus.NOT_FOUND
         if not grade_data["grade"]:
@@ -173,7 +173,7 @@ class CalculateGPA(MethodView):
     def patch(self, stud_id):
         student = Student.query.filter_by(stud_id=stud_id).first()
         if not student:
-            abort(404, message="Student not found/Invalid code"), HTTPStatus.NOT_FOUND
+            abort(404, message="Student not found/Invalid stud_id"), HTTPStatus.NOT_FOUND
 
         course_registered_records = CourseRegistered.query.filter_by(stud_id=stud_id).all()
         student_grades = [record.grade for record in course_registered_records]
