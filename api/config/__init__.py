@@ -5,6 +5,14 @@ from datetime import timedelta
 # This is the base directory for the application
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 
+# db_name = 'academia'
+#
+# default_uri = "postgres://{}:{}@{}/{}".format('postgres', 'password', 'localhost:5432', db_name)
+#
+# uri = os.getenv('DATABASE_URL', default_uri)
+# if uri.startswith('postgres://'):
+#     uri = uri.replace('postgres://', 'postgresql://', 1)
+
 
 # This is the configuration object that will be used by the application
 class Config:
@@ -58,9 +66,17 @@ class TestConfig(Config):
     SQLALCHEMY_DATABASE_URI = "sqlite://"
 
 
+class ProdConfig(Config):
+    # SQLALCHEMY_DATABASE_URI = uri
+    # SQLALCHEMY_TRACK_MODIFICATIONS = False
+    # DEBUG = config('DEBUG', False, cast=bool)
+    pass
+
+
 # This is the dictionary that contains the configuration object
 config_object = {"appcon": AppConfig,
-                 "testcon": TestConfig}
+                 "testcon": TestConfig,
+                 "prodcon": ProdConfig}
 
 
 """
