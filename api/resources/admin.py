@@ -165,7 +165,7 @@ class CreateCourse(MethodView):
             abort(404, message="Course not found/Invalid course_code"), HTTPStatus.NOT_FOUND
         db.session.delete(course)
         db.session.commit()
-        return {"message": "Course deleted"}, HTTPStatus.OK
+        return {"message": f"Course<{course_code}> deleted"}, HTTPStatus.OK
 
 
 @blp.route("/upload-grade/<string:stud_id>/<string:course_code>")
