@@ -52,11 +52,10 @@ class AppConfig(Config):
 
 
 class TestConfig(Config):
-    # TESTING = True
-    # SQLALCHEMY_TRACK_MODIFICATIONS = False
-    # SQLALCHEMY_ECHO = True
-    # SQLALCHEMY_DATABASE_URI = "sqlite://"
-    pass
+    TESTING = True
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
+    SQLALCHEMY_ECHO = True
+    SQLALCHEMY_DATABASE_URI = "sqlite://"
 
 
 # This is the dictionary that contains the configuration object
