@@ -136,8 +136,8 @@ class CreateCourse(MethodView):
 
 @blp.route("/course/<string:course_code>")
 class CreateCourse(MethodView):
-    @blp.arguments(plainCourseSchema)
-    @blp.response(200, plainCourseSchema)
+    @blp.arguments(UpdateCourseSchema)
+    @blp.response(200, UpdateCourseSchema)
     @blp.doc(description='Update a course',
              summary='Update an available course')
     @jwt_required()

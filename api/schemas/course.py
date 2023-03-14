@@ -53,6 +53,13 @@ class RegisterACourseSchema(Schema):
     course_code = fields.Str(required=True)
 
 
+class UpdateCourseSchema(Schema):
+    course_title = fields.Str()
+    course_code = fields.Str(dump_only=True)
+    course_unit = fields.Int()
+    teacher = fields.Str()
+
+
 """
 Registered Course fields
 
