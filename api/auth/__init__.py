@@ -80,12 +80,12 @@ class UserLogin(MethodView):
     # the data to be provided during the login process should follow this schema's convention
     @blb.arguments(plainUserLoginSchema)
     @blb.doc(description="Login a user",
-             summary="Login a user after providing a valid code and password:"
-                     "code is stud_id for students and adm_id for admins",)
+             summary="Login a user after providing a valid user_id and password:"
+                     "user_id is stud_id for students and adm_id for admins",)
     def post(self, user_data):
-        if user_data["code"].startswith('ADMIN'):
+        if user_data["user_id"].startswith('ADMIN'):
             # query the database to check if the username exist
-            admin = Admin.query.filter(Admin.adm_id == user_data["code"]).first()
+            admin = Admin.query.filter(Admin.adm_id == user_data["user_id"]).first()
 
             # if the username exist, verify if the password matches
             # if the password is valid, create an access token along with s refresh token
@@ -101,11 +101,11 @@ class UserLogin(MethodView):
             else:
                 abort(
                     404,
-                    message="user not found , invalid admin code",
+                    message="user not found , invalid adm_id",
                 )
-        elif user_data["code"].startswith('ACA'):
+        elif user_data["user_id"].startswith('ACA'):
             # query the database to check if the username exist
-            student = Student.query.filter(Student.stud_id == user_data["code"]).first()
+            student = Student.query.filter(Student.stud_id == user_data["user_id"]).first()
 
             # if the username exist, verify if the password matches
             # if the password is valid, create an access token along with s refresh token
@@ -118,13 +118,13 @@ class UserLogin(MethodView):
                 else:
                     abort(404, message="Invalid password")
             else:
-                # if the username and the password are invalid, abort with a status code of 404
+                # if the username and the password are invalid, abort with a status user_id of 404
                 abort(
                     404,
-                    message="student not found , invalid matric code",
+                    message="student not found , invalid stud_id",
                 )
         else:
-            abort(404, message="Invalid code")
+            abort(404, message="Invalid user_id")
 
 
 @blb.route("/logout")
