@@ -134,6 +134,40 @@ class CreateCourse(MethodView):
         return course
 
 
+@blp.route("/course/<string:course_code>")
+class CreateCourse(MethodView):
+    @blp.arguments(plainCourseSchema)
+    @blp.response(200, plainCourseSchema)
+    @blp.doc(description='Update a course',
+             summary='Update an available course')
+    @jwt_required()
+    @admin_required
+    def put(self, course_data, course_code: str):
+        course = Course.query.filter_by(course_code=course_code.upper()).first()
+        if not course:
+            abort(404, message="Course not found/Invalid course_code"), HTTPStatus.NOT_FOUND
+        if course_data["course_title"]:
+            course.course_title = course_data["course_title"].lower()
+        if course_data["course_unit"]:
+            course.course_unit = course_data["course_unit"]
+        if course_data["teacher"]:
+            course.teacher = course_data["teacher"].lower()
+        db.session.commit()
+        return course
+    
+    @blp.doc(description='Delete a course',
+             summary='Delete an available course')
+    @jwt_required()
+    @admin_required
+    def delete(self, course_code: str):
+        course = Course.query.filter_by(course_code=course_code.upper()).first()
+        if not course:
+            abort(404, message="Course not found/Invalid course_code"), HTTPStatus.NOT_FOUND
+        db.session.delete(course)
+        db.session.commit()
+        return {"message": "Course deleted"}, HTTPStatus.OK
+
+
 @blp.route("/upload-grade/<string:stud_id>/<string:course_code>")
 class UploadGrade(MethodView):
     @blp.arguments(plainGradeSchema)
