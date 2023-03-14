@@ -112,8 +112,11 @@ class RegisterCourse(MethodView):
     @jwt_required()
     @student_required
     def delete(self, course_code):
-        if not check_if_registered(course_code):
+        course = Course.query.filter_by(course_code=course_code).first()
+        if not course:
             abort(404, message="Course not found"), HTTPStatus.NOT_FOUND
+        if course and not check_if_registered(course_code):
+            abort(404, message="Course not registered"), HTTPStatus.NOT_FOUND
         course_registered = CourseRegistered.query.filter_by(course_code=course_code,
                                                              stud_id=get_jwt_identity()).first()
         db.session.delete(course_registered)
