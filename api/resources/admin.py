@@ -154,7 +154,7 @@ class CreateCourse(MethodView):
             course.teacher = course_data["teacher"].lower()
         db.session.commit()
         return course
-    
+
     @blp.doc(description='Delete a course',
              summary='Delete an available course')
     @jwt_required()
