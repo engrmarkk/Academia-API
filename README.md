@@ -405,7 +405,7 @@ RESPONSE
 
 <!-- [![My Blog Project Screenshot][Quiz_Api-screenshot2]](https://github.com/engrmarkk/Quiz_Api/blob/main/static/images/screen-dark.png) -->
 
-<br/>
+[//]: # (<br/>)
 
 [//]: # (<p align="right"><a href="#readme-top">back to top</a></p>)
 
