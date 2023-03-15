@@ -74,7 +74,7 @@
 Academia-API is a Student management system's API. It is a RESTful API that allows students to register for courses and admins to manage courses and students.
 ### Features
 - Admins can create, read, update and delete students and courses
-- Students get their unique student ID by using their email to fetch it
+- Students get their unique student ID by using their email to fetch it through the right endpoint
 - Students can login with their student ID and default password
 - Students can register for courses
 - Students can view their profiles and courses registered
