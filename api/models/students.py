@@ -35,7 +35,7 @@ class Student(db.Model):
                                          cascade="all, delete", backref='student', lazy=True)
 
     def __repr__(self):
-        return '<User %r>' % self.username
+        return '<User %r>' % self.email
 
 
 def student_required(func):

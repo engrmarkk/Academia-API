@@ -25,9 +25,9 @@ class plainStudentID(Schema):
 
 
 class UpdateStudentDetails(Schema):
-    first_name = fields.Str(required=True)
-    last_name = fields.Str(required=True)
-    email = fields.Str(required=True)
+    first_name = fields.Str(required=False)
+    last_name = fields.Str(required=False)
+    email = fields.Str(required=False)
 
 
 """

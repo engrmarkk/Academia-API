@@ -110,7 +110,7 @@ class ResetStudentPassword(MethodView):
 @blp.route("/create-course")
 class CreateCourse(MethodView):
     @blp.arguments(plainCourseSchema)
-    @blp.response(200, plainCourseSchema)
+    @blp.response(201, plainCourseSchema)
     @blp.doc(description='Create a course',
              summary='Create courses for the system')
     @jwt_required()
