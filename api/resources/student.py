@@ -105,20 +105,22 @@ class RegisterCourse(MethodView):
         return {"message": f"<Course: {course_data['course_code'].upper()}> registered successfully"}, HTTPStatus.CREATED
 
 
-@blp.route("/delete-course/<string:course_code>")
-class RegisterCourse(MethodView):
-    @blp.doc(description='Delete a registered course',
-             summary='Delete a registered course by providing the valid course code')
-    @jwt_required()
-    @student_required
-    def delete(self, course_code):
-        course = Course.query.filter_by(course_code=course_code).first()
-        if not course:
-            abort(404, message="Course not found"), HTTPStatus.NOT_FOUND
-        if course and not check_if_registered(course_code):
-            abort(404, message="Course not registered"), HTTPStatus.NOT_FOUND
-        course_registered = CourseRegistered.query.filter_by(course_code=course_code,
-                                                             stud_id=get_jwt_identity()).first()
-        db.session.delete(course_registered)
-        db.session.commit()
-        return {"message": f"<Course: {course_code}> deleted successfully"}, HTTPStatus.OK
+# @blp.route("/delete-course/<string:course_code>")
+# class RegisterCourse(MethodView):
+#     @blp.doc(description='Delete a registered course',
+#              summary='Delete a registered course by providing the valid course code')
+#     @jwt_required()
+#     @student_required
+#     def delete(self, course_code):
+#         course = Course.query.filter_by(course_code=course_code).first()
+#         if not course:
+#             abort(404, message="Course not found"), HTTPStatus.NOT_FOUND
+#         if course and not check_if_registered(course_code):
+#             abort(404, message="Course not registered"), HTTPStatus.NOT_FOUND
+#         course_registered = CourseRegistered.query.filter_by(course_code=course_code,
+#                                                              stud_id=get_jwt_identity()).first()
+#         if course_registered.grade:
+#             abort(403, message='You cannot delete a graded course')
+#         db.session.delete(course_registered)
+#         db.session.commit()
+#         return {"message": f"<Course: {course_code}> deleted successfully"}, HTTPStatus.OK
