@@ -235,7 +235,9 @@ Python3: [Get Python](https://www.python.org/downloads/)
    │   │   ├── student.py
    │   └── test
    │   │   ├── __init__.py
-   │   │   ├── test_create_student.py
+   │   │   ├── test_course.py
+   │   │   ├── test_student_profile.py
+   │   │   ├── test_students_by_admin.py
    │   │   ├── test_user.py
    │   └── utils
    │   │   ├── __init__.py
