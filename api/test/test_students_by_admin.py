@@ -92,3 +92,15 @@ class TestStudentAdminEndpoint(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(student.first_name, 'chris')
         self.assertEqual(student.email, 'joe@example.com')
+
+    def test_get_each_student(self):
+        student = Student.query.filter_by(email="joe@example.com").first()
+        stud_id = student.stud_id
+
+        token = create_access_token(identity="ADMIN-2023-020200")
+        headers = {
+            "Authorization": f"Bearer {token}"
+        }
+        response = self.client.get(f"/student/{stud_id}", headers=headers)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json['first_name'], 'testuser')
