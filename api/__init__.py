@@ -1,15 +1,17 @@
-from .extensions import db, migrate, jwt, app, api
+from .extensions import db, migrate, jwt, api
 from .config import config_object
 from .models import Course, Admin, Student, CourseRegistered
 from .auth import blb as AuthBlueprint
 from .resources.student import blp as student_blp
 from .resources.admin import blp as admin_blp
-from flask import jsonify
+from flask import jsonify, Flask
 from .blocklist import BLOCKLIST
 
 
 # This is the function that creates the app
 def create_app(configure=config_object["appcon"]):
+
+    app = Flask(__name__)
 
     app.config.from_object(configure)
 
@@ -91,5 +93,14 @@ def create_app(configure=config_object["appcon"]):
     api.register_blueprint(admin_blp)
     api.register_blueprint(student_blp)
     api.register_blueprint(AuthBlueprint)
+
+    @app.shell_context_processor
+    def make_shell_context():
+        return {"db": db,
+                "Admin": Admin,
+                "Student": Student,
+                "Course": Course,
+                "CourseRegistered": CourseRegistered
+                }
 
     return app
