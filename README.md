@@ -112,6 +112,10 @@ Creating this project got me more exposed to:
 - Authentication
 - Authorization
 - Endpoint restriction
+- Testing with unittest
+- Testing with Postman
+- Swagger UI
+- API Documentation
 
 
 <p align="right"><a href="#readme-top">back to top</a></p>
