@@ -212,7 +212,6 @@ Python3: [Get Python](https://www.python.org/downloads/)
    │   │   ├── __init__.py
    │   └── config
    │   │   ├── __init__.py
-   │   │   ├── configuration.py
    │   │   ├── your_db.sqlite3
    │   └── extensions
    │   │   ├── __init__.py
@@ -231,7 +230,7 @@ Python3: [Get Python](https://www.python.org/downloads/)
    │   │   ├── admin.py
    │   │   ├── auth.py
    │   │   ├── course.py
-   │   │   ├── grade.py
+   │   │   ├── score.py
    │   │   ├── student.py
    │   └── test
    │   │   ├── __init__.py
