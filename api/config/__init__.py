@@ -30,7 +30,7 @@ class Config:
     OPENAPI_URL_PREFIX = '/'
     OPENAPI_JSON_PATH = 'openapi.json'
     OPENAPI_REDOC_PATH = '/redoc'
-    OPENAPI_SWAGGER_UI_PATH = '/swagger-ui'
+    OPENAPI_SWAGGER_UI_PATH = '/'
     OPENAPI_SWAGGER_UI_URL = 'https://cdn.jsdelivr.net/npm/swagger-ui-dist/'
     OPENAPI_SWAGGER_UI_VERSION = '3.23.11'
     OPENAPI_SWAGGER_UI_JSONEDITOR = True
