@@ -91,11 +91,6 @@ Academia-API is a Student management system's API. It is a RESTful API that allo
 
 
 
-
-https://user-images.githubusercontent.com/100721103/225929529-95040462-f36d-4880-854c-c89b4bac6d33.mp4
-
-
-
 ### Built With:
 
 ![Python][python]
@@ -106,6 +101,11 @@ https://user-images.githubusercontent.com/100721103/225929529-95040462-f36d-4880
 
 ---
 
+https://user-images.githubusercontent.com/100721103/225929529-95040462-f36d-4880-854c-c89b4bac6d33.mp4
+
+<p align="right"><a href="#readme-top">back to top</a></p>
+
+---
 <!-- Lessons from the Project -->
 
 ## Exposure
