@@ -5,7 +5,7 @@ from ..models import Student, Course, \
     admin_required, student_default_password, CourseRegistered, Admin
 from http import HTTPStatus
 from ..extensions import db
-from ..utils import calculate_gpa
+from ..utils import calculate_gpa, get_grade
 from flask_jwt_extended import jwt_required
 
 blp = Blueprint("admin", __name__, description="admin accessible endpoints")
@@ -181,15 +181,15 @@ class CreateCourse(MethodView):
         return {"message": f"Course<{course_code}> deleted"}, HTTPStatus.OK
 
 
-@blp.route("/upload-grade/<string:stud_id>/<string:course_code>")
-class UploadGrade(MethodView):
-    @blp.arguments(plainGradeSchema)
+@blp.route("/upload-score/<string:stud_id>/<string:course_code>")
+class UploadScore(MethodView):
+    @blp.arguments(plainscoreSchema)
     @blp.response(200, plainCourseRegisteredSchema)
-    @blp.doc(description='Upload grade for a student',
-             summary='Upload grade for a student using stud_id (i.e matric number) and course_code')
+    @blp.doc(description='Upload score for a student',
+             summary='Upload score for a student using stud_id (i.e matric number) and course_code')
     @jwt_required()
     @admin_required
-    def put(self, grade_data, stud_id: str, course_code: str):
+    def put(self, score_data, stud_id: str, course_code: str):
         student = Student.query.filter_by(stud_id=stud_id).first()
         if not student:
             abort(404, message="Student not found/Invalid stud_id"), HTTPStatus.NOT_FOUND
@@ -199,15 +199,16 @@ class UploadGrade(MethodView):
         course_registered = CourseRegistered.query.filter_by(
             stud_id=stud_id, course_code=course_code.upper()
         ).first()
-        # if course_registered and course_registered.grade:
-        #     abort(409, message="Grade already uploaded"), HTTPStatus.CONFLICT
+        # if course_registered and course_registered.score:
+        #     abort(409, message="score already uploaded"), HTTPStatus.CONFLICT
         if not course_registered:
             abort(404, message="Student not registered for this course"), HTTPStatus.NOT_FOUND
-        if grade_data["grade"] < 1 or grade_data["grade"] > 100:
-            abort(400, message="Grade must be between 1 and 100"), HTTPStatus.BAD_REQUEST
-        # if not grade_data["grade"]:
-        #     abort(400, message="Grade cannot be empty"), HTTPStatus.BAD_REQUEST
-        course_registered.grade = grade_data["grade"]
+        if score_data["score"] < 1 or score_data["score"] > 100:
+            abort(400, message="score must be between 1 and 100"), HTTPStatus.BAD_REQUEST
+        # if not score_data["score"]:
+        #     abort(400, message="score cannot be empty"), HTTPStatus.BAD_REQUEST
+        course_registered.score = score_data["score"]
+        course_registered.grade = get_grade(score_data["score"])
         db.session.commit()
         return course_registered
 
@@ -225,14 +226,14 @@ class CalculateGPA(MethodView):
             abort(404, message="Student not found/Invalid stud_id"), HTTPStatus.NOT_FOUND
 
         course_registered_records = CourseRegistered.query.filter_by(stud_id=stud_id).all()
-        student_grades = [record.grade for record in course_registered_records]
+        student_scores = [record.score for record in course_registered_records]
 
         course_registered_records = CourseRegistered.query.filter_by(stud_id=stud_id).all()
         student_units = [record.course_unit for record in course_registered_records]
 
-        if not student_grades:
-            abort(404, message="Student has no grade(s)"), HTTPStatus.NOT_FOUND
-        gpa = calculate_gpa(student_grades, student_units)
+        if not student_scores:
+            abort(404, message="Student has no score(s)"), HTTPStatus.NOT_FOUND
+        gpa = calculate_gpa(student_scores, student_units)
         student.gpa = gpa
         db.session.commit()
         return {"message": f"Uploaded successfully, student GPA is : {gpa}"}, HTTPStatus.OK
