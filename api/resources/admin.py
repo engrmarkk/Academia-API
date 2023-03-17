@@ -68,11 +68,17 @@ class EachStudent(MethodView):
         student = Student.query.filter_by(stud_id=stud_id).first()
         if not student:
             abort(404, message="Student not found"), HTTPStatus.NOT_FOUND
-        if student_data["first_name"]:
+
+        first_name = student_data.get("first_name", None)
+        if first_name:
             student.first_name = student_data["first_name"].lower()
-        if student_data["last_name"]:
+
+        last_name = student_data.get("last_name", None)
+        if last_name:
             student.last_name = student_data["last_name"].lower()
-        if student_data["email"]:
+
+        email = student_data.get("email", None)
+        if email:
             student.email = student_data["email"].lower()
         db.session.commit()
         return student
@@ -102,7 +108,7 @@ class ResetStudentPassword(MethodView):
         if not student:
             abort(404, message="Student not found/Invalid stud_id"), HTTPStatus.NOT_FOUND
         student.password = student_default_password('academia')
-        student.password_changed = False
+        student.changed_password = False
         db.session.commit()
         return {"message": "Password reset successfully"}, HTTPStatus.OK
 
@@ -146,12 +152,19 @@ class CreateCourse(MethodView):
         course = Course.query.filter_by(course_code=course_code.upper()).first()
         if not course:
             abort(404, message="Course not found/Invalid course_code"), HTTPStatus.NOT_FOUND
-        if course_data["course_title"]:
-            course.course_title = course_data["course_title"].lower()
-        if course_data["course_unit"]:
-            course.course_unit = course_data["course_unit"]
-        if course_data["teacher"]:
-            course.teacher = course_data["teacher"].lower()
+
+        course_title = course_data.get("course_title", None)
+        if course_title:
+            course.course_title = course_title.lower()
+
+        course_unit = course_data.get("course_unit", None)
+        if course_unit is not None:
+            course.course_unit = course_unit
+
+        teacher = course_data.get("teacher", None)
+        if teacher:
+            course.teacher = teacher.lower()
+
         db.session.commit()
         return course
 
@@ -190,8 +203,10 @@ class UploadGrade(MethodView):
         #     abort(409, message="Grade already uploaded"), HTTPStatus.CONFLICT
         if not course_registered:
             abort(404, message="Student not registered for this course"), HTTPStatus.NOT_FOUND
-        if not grade_data["grade"]:
-            abort(400, message="Grade cannot be empty"), HTTPStatus.BAD_REQUEST
+        if grade_data["grade"] < 1 or grade_data["grade"] > 100:
+            abort(400, message="Grade must be between 1 and 100"), HTTPStatus.BAD_REQUEST
+        # if not grade_data["grade"]:
+        #     abort(400, message="Grade cannot be empty"), HTTPStatus.BAD_REQUEST
         course_registered.grade = grade_data["grade"]
         db.session.commit()
         return course_registered
@@ -220,7 +235,7 @@ class CalculateGPA(MethodView):
         gpa = calculate_gpa(student_grades, student_units)
         student.gpa = gpa
         db.session.commit()
-        return {"message": f"Student GPA is : {gpa}"}, HTTPStatus.OK
+        return {"message": f"Uploaded successfully, student GPA is : {gpa}"}, HTTPStatus.OK
 
 
 @blp.route("/get-admins")
