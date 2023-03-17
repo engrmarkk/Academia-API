@@ -25,7 +25,8 @@ class StudentWhoRegisteredACourseSchema(Schema):
     stud_id = fields.Str(required=True)
     first_name = fields.Str(required=True)
     last_name = fields.Str(required=True)
-    grade = fields.Float(dump_only=True)
+    grade = fields.Str(dump_only=True)
+    score = fields.Float(dump_only=True)
 
 
 class CourseRegisteredStudentSchema(Schema):
@@ -60,6 +61,13 @@ class UpdateCourseSchema(Schema):
     course_code = fields.Str(dump_only=True)
     course_unit = fields.Int(required=False)
     teacher = fields.Str(required=False)
+
+
+class GetStudentGradeSchema(Schema):
+    grade = fields.Str(dump_only=True)
+    score = fields.Float(dump_only=True)
+    first_name = fields.Str(required=True)
+    last_name = fields.Str(required=True)
 
 
 """
