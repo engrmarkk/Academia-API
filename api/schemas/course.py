@@ -17,6 +17,7 @@ class plainCourseRegisteredSchema(Schema):
     course_code = fields.Str(required=True)
     course_title = fields.Str(required=True)
     course_unit = fields.Int(required=True)
+    stud_id = fields.Str(required=True)
 
 
 class StudentWhoRegisteredACourseSchema(Schema):
@@ -54,10 +55,10 @@ class RegisterACourseSchema(Schema):
 
 
 class UpdateCourseSchema(Schema):
-    course_title = fields.Str()
+    course_title = fields.Str(required=False)
     course_code = fields.Str(dump_only=True)
-    course_unit = fields.Int()
-    teacher = fields.Str()
+    course_unit = fields.Int(required=False)
+    teacher = fields.Str(required=False)
 
 
 """
