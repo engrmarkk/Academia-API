@@ -46,6 +46,7 @@
         <li><a href="#built-with">Built With</a></li>
         <li><a href="#features">Features</a></li>
       </ul>
+      <li><a href="#demo">Demo</a></li>
     </li>
     <li>
       <a href="#exposure">Exposure</a>
@@ -100,9 +101,10 @@ Academia-API is a Student management system's API. It is a RESTful API that allo
 <p align="right"><a href="#readme-top">back to top</a></p>
 
 ---
+## Demo
 
 https://user-images.githubusercontent.com/100721103/225929529-95040462-f36d-4880-854c-c89b4bac6d33.mp4
-
+<br>
 <p align="right"><a href="#readme-top">back to top</a></p>
 
 ---
