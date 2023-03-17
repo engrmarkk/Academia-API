@@ -119,7 +119,7 @@ class RegisterCourse(MethodView):
 #             abort(404, message="Course not registered"), HTTPStatus.NOT_FOUND
 #         course_registered = CourseRegistered.query.filter_by(course_code=course_code,
 #                                                              stud_id=get_jwt_identity()).first()
-#         if course_registered.grade:
+#         if course_registered.score:
 #             abort(403, message='You cannot delete a graded course')
 #         db.session.delete(course_registered)
 #         db.session.commit()
