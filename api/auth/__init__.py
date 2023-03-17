@@ -5,6 +5,7 @@ from passlib.hash import pbkdf2_sha256
 from ..schemas import *
 from ..models import Student, Admin
 from ..extensions import db
+from ..utils import validate_email
 from flask_jwt_extended import (
     create_access_token,
     create_refresh_token,
@@ -35,6 +36,8 @@ class Register(MethodView):
     @blb.doc(description="Register a new user",
              summary="Register a new user")
     def post(self, admin_data):
+        if not validate_email(admin_data["email"]):
+            abort(400, message="Invalid email address")
         # query the database to check if the username or email already exist in the database
         if Admin.query.filter(Admin.email == admin_data["email"].lower()).first():
             # if any of those details already exist in the database, abort the registration process with

@@ -5,7 +5,7 @@ from ..models import Student, Course, \
     admin_required, student_default_password, CourseRegistered, Admin
 from http import HTTPStatus
 from ..extensions import db
-from ..utils import calculate_gpa, get_grade
+from ..utils import calculate_gpa, get_grade, validate_email
 from flask_jwt_extended import jwt_required
 
 blp = Blueprint("admin", __name__, description="admin accessible endpoints")
@@ -32,6 +32,8 @@ class CreateStudent(MethodView):
     @jwt_required()
     @admin_required
     def post(self, student_data):
+        if not validate_email(student_data["email"]):
+            abort(403, message="Invalid email"), HTTPStatus.FORBIDDEN
         student = Student.query.filter_by(email=student_data["email"]).first()
         if student:
             abort(409, message="Student already exist"), HTTPStatus.CONFLICT
