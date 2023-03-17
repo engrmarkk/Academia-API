@@ -183,6 +183,26 @@ class CreateCourse(MethodView):
         return {"message": f"Course<{course_code}> deleted"}, HTTPStatus.OK
 
 
+@blp.route("/get-grade/<string:stud_id>/<string:course_code>")
+class GetGradeOfEachStudent(MethodView):
+    @blp.response(200, GetStudentGradeSchema)
+    @blp.doc(description='Get grade of a student',
+             summary='Get grade of a student using stud_id (i.e matric number) and course_code')
+    @jwt_required()
+    @admin_required
+    def get(self, stud_id: str, course_code: str):
+        student = Student.query.filter_by(stud_id=stud_id).first()
+        if not student:
+            abort(404, message="Student not found/Invalid stud_id"), HTTPStatus.NOT_FOUND
+        course = Course.query.filter_by(course_code=course_code.upper()).first()
+        if not course:
+            abort(404, message="Course not found/Invalid course_code"), HTTPStatus.NOT_FOUND
+        course_registered = CourseRegistered.query.filter_by(student_id=student.id, course_id=course.id).first()
+        if not course_registered:
+            abort(404, message="Student not registered for this course"), HTTPStatus.NOT_FOUND
+        return course_registered
+
+
 @blp.route("/upload-score/<string:stud_id>/<string:course_code>")
 class UploadScore(MethodView):
     @blp.arguments(plainscoreSchema)
