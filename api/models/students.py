@@ -43,6 +43,6 @@ def student_required(func):
     def wrapper(*args, **kwargs):
         logged_user = get_jwt_identity()
         if not logged_user.startswith('ACA'):
-            abort(401, message="This is a student arena")
+            abort(401, message="This is students arena")
         return func(*args, **kwargs)
     return wrapper
