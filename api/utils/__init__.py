@@ -1,3 +1,6 @@
+import re
+
+
 def calculate_gpa(scores, units):
     total_grade_points = 0
     total_credits = 0
@@ -33,3 +36,13 @@ def get_grade(score):
         return 'D'
     else:
         return 'F'
+
+
+# This function uses a Regular Expression to validate the email address.
+# The pattern looks for one or more characters before the @ sign, then one or more characters after the @ sign followed by a period and then one or more characters.
+# If the email address does not match this pattern, the function will return False, otherwise it will return True.
+def validate_email(email):
+    # check if email is valid
+    if not re.match(r"[^@]+@[^@]+\.[^@]+", email):
+        return False
+    return True
