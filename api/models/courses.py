@@ -9,7 +9,7 @@ class Course(db.Model):
     course_code = db.Column(db.String(80), unique=True, nullable=False)
     year = db.Column(db.Integer, nullable=False, default=datetime.now().year)
     course_unit = db.Column(db.Integer, nullable=False)
-    created_at = db.Column(db.DateTime, nullable=False, default=datetime.now())
+    created_at = db.Column(db.DateTime, nullable=False, default=datetime.now().date())
     teacher = db.Column(db.String(150), nullable=False)
     registered_courses = db.relationship('CourseRegistered', backref='course', lazy=True, cascade="all, delete")
     student_registered = db.relationship('CourseRegistered', viewonly=True, overlaps="course,registered_courses", backref='student_')
