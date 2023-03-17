@@ -13,7 +13,8 @@ class plainCourseSchema(Schema):
 
 class plainCourseRegisteredSchema(Schema):
     id = fields.Int(dump_only=True)
-    grade = fields.Float(dump_only=True)
+    grade = fields.Str(dump_only=True)
+    score = fields.Float(dump_only=True)
     course_code = fields.Str(required=True)
     course_title = fields.Str(required=True)
     course_unit = fields.Int(required=True)
