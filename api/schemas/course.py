@@ -65,7 +65,7 @@ class UpdateCourseSchema(Schema):
 Registered Course fields
 
     id
-    grade
+    score
     name
     stud_id
     unit
