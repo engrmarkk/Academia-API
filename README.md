@@ -204,7 +204,7 @@ Python3: [Get Python](https://www.python.org/downloads/)
    ```
    To use swagger-ui, use the link below
    ```sh
-    http://127.0.0.1:5000/swagger-ui
+    http://127.0.0.1:5000/
    ```
    <br>
 ### Project structure
