@@ -9,6 +9,7 @@ class plainStudentSchema(Schema):
     stud_id = fields.Str(required=True, dump_only=True)
     email = fields.Str(required=True)
     gpa = fields.Float(required=True)
+    # the registered_courses will return a list of courses registered by the student
     registered_courses = fields.Nested(plainCourseRegisteredSchema(), many=True)
 
 

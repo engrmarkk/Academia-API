@@ -5,11 +5,19 @@ from datetime import timedelta
 # This is the base directory for the application
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 
+# This is the database name
 db_name = 'academia'
 
+# this id the default uri for the database
+# it uses the database name from above
 default_uri = "postgres://{}:{}@{}/{}".format('postgres', 'password', 'localhost:5432', db_name)
 
+# This is the uri for the database
+# it gets the uri from the environment variable DATABASE_URL
+# if the environment variable is not set, it uses the default uri
 uri = os.getenv('DATABASE_URL', default_uri)
+# if the uri starts with postgres://, replace it with postgresql://
+# this is to make it compatible with sqlalchemy
 if uri.startswith('postgres://'):
     uri = uri.replace('postgres://', 'postgresql://', 1)
 
@@ -24,6 +32,7 @@ class Config:
     JWT_REFRESH_TOKEN_EXPIRES = timedelta(days=30)
     # This is the secret key for the jwt
     JWT_SECRET_KEY = config("JWT_SECRET_KEY", "secret")
+    # the api title
     API_TITLE = 'Student Management System'
     API_VERSION = 'v1'
     OPENAPI_VERSION = '3.0.2'
@@ -35,6 +44,7 @@ class Config:
     OPENAPI_SWAGGER_UI_VERSION = '3.23.11'
     OPENAPI_SWAGGER_UI_JSONEDITOR = True
     PROPAGATE_EXCEPTIONS = True
+    # the swagger ui configuration for authorization
     API_SPEC_OPTIONS = {
         'security': [{"bearerAuth": []}],
         'components': {

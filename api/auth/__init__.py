@@ -40,21 +40,25 @@ class Register(MethodView):
             abort(400, message="Invalid email address")
         # query the database to check if the username or email already exist in the database
         if Admin.query.filter(Admin.email == admin_data["email"].lower()).first():
-            # if any of those details already exist in the database, abort the registration process with
+            # if the email already exist in the database, abort the registration process with
             # a status code of 409
-            abort(409, message="An admin with that username or email already exists.")
+            abort(409, message="An admin with that email already exists.")
+        # if the password is less than 6 characters, abort the registration process with
         if len(admin_data["password"]) < 6:
             abort(400, message="Password must be at least 6 characters long")
-        # if the email and username does not exist in the database, then add and commit the user into the database
+        # if the email not exist in the database, then add and commit the user into the database
         admin = Admin(
             first_name=admin_data["first_name"].lower(),
             last_name=admin_data["last_name"].lower(),
             email=admin_data["email"].lower(),
+            # hash the password before storing it in the database
             password=pbkdf2_sha256.hash(admin_data["password"]),
         )
+        # add the user to the database
         db.session.add(admin)
+        # commit the changes
         db.session.commit()
-        # after a successful registration, return this message to the user
+        # return the user
         return admin
 
 
@@ -87,10 +91,10 @@ class UserLogin(MethodView):
                      "user_id is stud_id for students and adm_id for admins",)
     def post(self, user_data):
         if user_data["user_id"].startswith('ADMIN'):
-            # query the database to check if the username exist
+            # query the database to check if the user_id exist
             admin = Admin.query.filter(Admin.adm_id == user_data["user_id"]).first()
 
-            # if the username exist, verify if the password matches
+            # if the user_id exist, verify if the password matches
             # if the password is valid, create an access token along with s refresh token
             if admin:
                 if pbkdf2_sha256.verify(user_data["password"], admin.password):
@@ -98,19 +102,21 @@ class UserLogin(MethodView):
                     refresh_token = create_refresh_token(identity=admin.adm_id)
                     # return the created tokens
                     return {"access_token": access_token, "refresh_token": refresh_token}
-                    # if the username and the password are invalid, abort with a status code of 404
+                    # if the user_id and the password are invalid, abort with a status code of 404
                 else:
                     abort(404, message="invalid password")
             else:
+                # if the user_id and the password are invalid, abort with a status code of 404
                 abort(
                     404,
                     message="user not found , invalid adm_id",
                 )
+        # if the user_id is not an admin, then it must be a student
         elif user_data["user_id"].startswith('ACA'):
-            # query the database to check if the username exist
+            # query the database to check if the student exist
             student = Student.query.filter(Student.stud_id == user_data["user_id"]).first()
 
-            # if the username exist, verify if the password matches
+            # if the student exist, verify if the password matches
             # if the password is valid, create an access token along with s refresh token
             if student:
                 if pbkdf2_sha256.verify(user_data["password"], student.password):
@@ -119,6 +125,7 @@ class UserLogin(MethodView):
                     # return the created tokens
                     return {"access_token": access_token, "refresh_token": refresh_token}
                 else:
+                    # if the username and the password are invalid, abort with a status code of 404
                     abort(404, message="Invalid password")
             else:
                 # if the username and the password are invalid, abort with a status user_id of 404
@@ -126,6 +133,7 @@ class UserLogin(MethodView):
                     404,
                     message="student not found , invalid stud_id",
                 )
+        # if the user_id is not an admin or a student, then it is invalid
         else:
             abort(404, message="Invalid user_id")
 
