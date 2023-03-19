@@ -18,7 +18,8 @@ class TestStudentProfileEndpoint(unittest.TestCase):
         student = Student(
             first_name="testuser",
             last_name="testuser",
-            email="testuser@example.com")
+            email="testuser@example.com",
+            stud_id="ACA-2023-020200")
         db.session.add(student)
         db.session.commit()
 
@@ -78,4 +79,13 @@ class TestStudentProfileEndpoint(unittest.TestCase):
         response = self.client.post("/register-course", json=data, headers=headers)
         # this is to ascertain that the course did not exist
         self.assertEqual(response.status_code, 404)
-        
+
+    def test_fetch_stud_id(self):
+        """Test that an authenticated student can fetch their student id"""
+
+        response = self.client.get("/get-student-id/testuser@example.com")
+
+        student = Student.query.filter_by(email="testuser@example.com").first()
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(student.stud_id, "ACA-2023-020200")
