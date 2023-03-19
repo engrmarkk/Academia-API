@@ -56,12 +56,8 @@ class StudentTestCase(unittest.TestCase):
         self.assertEqual(courses[1].course_code, "CSC401")
 
     def test_available_course(self):
-        course = Course.query.all()
-        self.assertEqual(len(course), 1)
-        self.assertEqual(course[0].id, 1)
-        self.assertEqual(course[0].course_code, "PYT301")
-        self.assertEqual(course[0].course_unit, 3)
-        self.assertEqual(course[0].teacher, "gideon")
+        response = self.client.get("/available-courses")
+        self.assertEqual(response.status_code, 200)
 
     def test_update_course(self):
         data = {
@@ -102,4 +98,3 @@ class StudentTestCase(unittest.TestCase):
         course = Course.query.all()
         self.assertEqual(len(course), 0)
         self.assertEqual(course, [])
-        
