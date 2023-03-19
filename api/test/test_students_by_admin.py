@@ -104,3 +104,16 @@ class TestStudentAdminEndpoint(unittest.TestCase):
         response = self.client.get(f"/student/{stud_id}", headers=headers)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json['first_name'], 'testuser')
+
+    def test_delete_student(self):
+        student = Student.query.filter_by(email="joe@example.com").first()
+        stud_id = student.stud_id
+        token = create_access_token(identity="ADMIN-2023-020200")
+        headers = {
+            "Authorization": f"Bearer {token}"
+        }
+        response = self.client.delete(f"/student/{stud_id}", headers=headers)
+        self.assertEqual(response.status_code, 200)
+
+        student = Student.query.filter_by(email="mark@example.com").first()
+        self.assertEqual(student, None)
