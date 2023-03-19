@@ -62,3 +62,43 @@ class StudentTestCase(unittest.TestCase):
         self.assertEqual(course[0].course_code, "PYT301")
         self.assertEqual(course[0].course_unit, 3)
         self.assertEqual(course[0].teacher, "gideon")
+
+    def test_update_course(self):
+        data = {
+            "course_unit": 3,
+            "teacher": "abraham"
+        }
+
+        # create JWT token for authorization
+        token = create_access_token(identity="ADMIN-2023-020200")
+
+        # set headers with JWT token
+        headers = {
+            "Authorization": f"Bearer {token}"
+        }
+
+        response = self.client.put("/course/PYT301", json=data, headers=headers)
+        self.assertEqual(response.status_code, 200)
+
+        course = Course.query.filter_by(course_code="PYT301").first()
+        self.assertEqual(course.course_unit, 3)
+        self.assertEqual(course.teacher, "abraham")
+        self.assertEqual(course.course_code, "PYT301")
+        self.assertNotEqual(course.course_unit, 2)
+        self.assertNotEqual(course.teacher, "gideon")
+
+    # def test_delete_course(self):
+    #     # create JWT token for authorization
+    #     token = create_access_token(identity="ADMIN-2023-020200")
+    #
+    #     # set headers with JWT token
+    #     headers = {
+    #         "Authorization": f"Bearer {token}"
+    #     }
+    #
+    #     response = self.client.delete("/course/PYT301", headers=headers)
+    #     self.assertEqual(response.status_code, 200)
+    #
+    #     course = Course.query.all()
+    #     self.assertEqual(len(course), 0)
+    #     self.assertEqual(course, [])
