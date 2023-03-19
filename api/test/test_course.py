@@ -87,18 +87,19 @@ class StudentTestCase(unittest.TestCase):
         self.assertNotEqual(course.course_unit, 2)
         self.assertNotEqual(course.teacher, "gideon")
 
-    # def test_delete_course(self):
-    #     # create JWT token for authorization
-    #     token = create_access_token(identity="ADMIN-2023-020200")
-    #
-    #     # set headers with JWT token
-    #     headers = {
-    #         "Authorization": f"Bearer {token}"
-    #     }
-    #
-    #     response = self.client.delete("/course/PYT301", headers=headers)
-    #     self.assertEqual(response.status_code, 200)
-    #
-    #     course = Course.query.all()
-    #     self.assertEqual(len(course), 0)
-    #     self.assertEqual(course, [])
+    def test_delete_course(self):
+        # create JWT token for authorization
+        token = create_access_token(identity="ADMIN-2023-020200")
+
+        # set headers with JWT token
+        headers = {
+            "Authorization": f"Bearer {token}"
+        }
+
+        response = self.client.delete("/course/PYT301", headers=headers)
+        self.assertEqual(response.status_code, 200)
+
+        course = Course.query.all()
+        self.assertEqual(len(course), 0)
+        self.assertEqual(course, [])
+        
