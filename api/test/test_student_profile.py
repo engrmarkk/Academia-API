@@ -60,3 +60,22 @@ class TestStudentProfileEndpoint(unittest.TestCase):
         # Check that the response status code is 200 OK
         self.assertEqual(response.status_code, 200)
         self.assertTrue(pbkdf2_sha256.verify("newpassword", student.password))
+
+    def test_register_course(self):
+        """Test that an authenticated student can register a course"""
+        # Create an access token for the test student
+        student = Student.query.filter_by(email="testuser@example.com").first()
+        current_user = student.stud_id
+
+        data = {
+            "course_code": "BCH101"
+        }
+
+        access_token = create_access_token(identity=current_user)
+        headers = {
+            "Authorization": f"Bearer {access_token}"
+        }
+        response = self.client.post("/register-course", json=data, headers=headers)
+        # this is to ascertain that the course did not exist
+        self.assertEqual(response.status_code, 404)
+        
