@@ -8,7 +8,7 @@ BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 # This is the database name
 db_name = 'academia'
 
-# this id the default uri for the database
+# this is the default uri for the database
 # it uses the database name from above
 default_uri = "postgres://{}:{}@{}/{}".format('postgres', 'password', 'localhost:5432', db_name)
 
