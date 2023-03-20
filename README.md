@@ -464,7 +464,9 @@ Adeniyi Olanrewaju - [@iamengrmark](https://twitter.com/iamengrmark) - adeniyibo
 
 [//]: # (Gabriel Kalango - [@GabrielKalango]&#40;https://twitter.com/GabrielKalango&#41; - kallythegreat11@gmail.com)
 
-Project Link: [Academia Api](https://github.com/engrmarkk/Academia-API)
+Project Link: [Academia Api](https://github.com/engrmarkk/Academia-API) <br>
+
+Live Link: [Academia](https://academia.herokuapp.com/))
 
 <p align="right"><a href="#readme-top">back to top</a></p>
 
