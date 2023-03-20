@@ -175,8 +175,18 @@ Python3: [Get Python](https://www.python.org/downloads/)
    ```sh
    export FLASK_APP=run.py
    ```
+   
+7. Set the create_app function to run the app in development mode.
+   Make sure the imported create_app function in the run.py looks like this
+   ```sh
+   app = create_app()
+   ```
+   and not like this
+   ```sh
+   app = create_app(configure=config_object['prodcon'])
+   ```
 
-7. Create database
+8. Create database
    ```sh
    flask shell
    ```
