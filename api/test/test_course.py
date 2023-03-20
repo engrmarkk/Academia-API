@@ -59,6 +59,18 @@ class StudentTestCase(unittest.TestCase):
         response = self.client.get("/available-courses")
         self.assertEqual(response.status_code, 200)
 
+    def test_get_specific_course(self):
+        # create JWT token for authorization
+        token = create_access_token(identity="ADMIN-2023-020200")
+
+        # set headers with JWT token
+        headers = {
+            "Authorization": f"Bearer {token}"
+        }
+
+        response = self.client.get("/course/PYT301", headers=headers)
+        self.assertEqual(response.status_code, 200)
+
     def test_update_course(self):
         data = {
             "course_unit": 3,
