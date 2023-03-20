@@ -365,6 +365,28 @@ RESPONSE
 ]
 ```
 
+GET (Get specific course with registered students) http://127.0.0.1.5000/course/<course_id> <br>
+@admin_required
+
+RESPONSE
+```json
+{
+    "id": 0,
+    "created_at": "2023-03-14T01:59:20.927Z",
+    "teacher": "string",
+    "course_title": "string",
+    "year": 0,
+    "course_code": "string",
+    "course_unit": 0,
+    "student_registered": {
+      "stud_id": "string",
+      "first_name": "string",
+      "last_name": "string",
+      "grade": 0
+    }
+  }
+```
+
 GET (Get all courses with registered students) http://127.0.0.1:5000/courses-students <br>
 @admin_required
 
