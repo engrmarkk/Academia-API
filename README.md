@@ -466,7 +466,7 @@ Adeniyi Olanrewaju - [@iamengrmark](https://twitter.com/iamengrmark) - adeniyibo
 
 Project Link: [Academia Api](https://github.com/engrmarkk/Academia-API) <br>
 
-Live Link: [Academia](https://academia.herokuapp.com/))
+Live Link: [Academia](https://academia.herokuapp.com/)
 
 <p align="right"><a href="#readme-top">back to top</a></p>
 
