@@ -194,6 +194,20 @@ class CreateCourse(MethodView):
 
 @blp.route("/course/<string:course_code>")
 class CreateCourse(MethodView):
+    @blp.response(200, ListCoursesWithStudentSchema)
+    @blp.doc(description='Get a course and student registered for the course',
+             summary='Get a course and student registered for the particular course')
+    @jwt_required()
+    @admin_required
+    def get(self, course_code: str):
+        # check if the course exist in the database
+        course = Course.query.filter_by(course_code=course_code.upper()).first()
+        # if the course does not exist in the database, abort the process with a status code of 404
+        if not course:
+            abort(404, message="Course not found/Invalid course_code"), HTTPStatus.NOT_FOUND
+        # if the course exist in the database, return the course
+        return course
+
     @blp.arguments(UpdateCourseSchema)
     @blp.response(200, UpdateCourseSchema)
     @blp.doc(description='Update a course',
