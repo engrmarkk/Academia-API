@@ -1,4 +1,4 @@
-# Academia-API
+# Academia API
 
 <!-- Back to Top Navigation Anchor -->
 
